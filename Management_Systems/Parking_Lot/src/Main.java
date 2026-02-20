@@ -2,8 +2,6 @@ import entities.*;
 import enums.VehicleSize;
 import strategy.fee.VehicleBasedStrategy;
 
-import java.util.Optional;
-
 public class Main {
     public static void main(String[] args) throws Exception {
         ParkingLot parkingLot = ParkingLot.getInstance();
