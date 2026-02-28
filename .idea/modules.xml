@@ -2,11 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Communication_And_Messaging/Communication_And_Messaging.iml" filepath="$PROJECT_DIR$/Communication_And_Messaging/Communication_And_Messaging.iml" />
       <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/Data_Structures_And_Search.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/Data_Structures_And_Search.iml" />
       <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/LRU_cache/LRU_cache.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/LRU_cache/LRU_cache.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Low_Level_Design.iml" filepath="$PROJECT_DIR$/.idea/Low_Level_Design.iml" />
       <module fileurl="file://$PROJECT_DIR$/Management_Systems/Management_Systems.iml" filepath="$PROJECT_DIR$/Management_Systems/Management_Systems.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Notification_System/Notification_System.iml" filepath="$PROJECT_DIR$/Notification_System/Notification_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Communication_And_Messaging/Notification_System/Notification_System.iml" filepath="$PROJECT_DIR$/Communication_And_Messaging/Notification_System/Notification_System.iml" />
       <module fileurl="file://$PROJECT_DIR$/Management_Systems/Parking_Lot/Parking_Lot.iml" filepath="$PROJECT_DIR$/Management_Systems/Parking_Lot/Parking_Lot.iml" />
       <module fileurl="file://$PROJECT_DIR$/Management_Systems/Task_Management/Task_Management.iml" filepath="$PROJECT_DIR$/Management_Systems/Task_Management/Task_Management.iml" />
     </modules>
