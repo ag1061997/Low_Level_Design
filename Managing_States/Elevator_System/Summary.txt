@@ -1,0 +1,106 @@
+################ Functional Requirements #################
+=> Support multiple elevators serving multiple floors in a building.
+=> Handle internal requests (cabin button) and external requests (hall buttons with directions).
+=> Dispatch external requests to the most suitable elevator using a configurable strategy.
+=> Each elevator uses LOOK algorithm to serve requests efficiently.
+=> Display current floor and direction on each floor and inside each elevator cabin.
+=> Each elevator operates independently in its own thread.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Must be thread safe to handle concurrent elevator operations.
+=> Design should be modular and extensible to support new dispatch strategies.
+=> Codebase should be testable in isolation.
+=> Dispatch algorithm should be swappable at runtime without code change.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. Direction:
+            a. Attributes: (UP, DOWN, IDLE).
+
+          2. DoorState:
+            a. Attributes: (OPEN, CLOSED).
+
+          3. ElevatorState:
+            a. Attributes: (IDLE, MOVING_UP, MOVING_DOWN, DOOR_OPEN, OUT_OF_SERVICE).
+
+          4. RequestType:
+            a. Attributes: (INTERNAL, EXTERNAL).
+
+
+=> Exceptions: 1. ElevatorException:
+                a. It extends RunTimeException.
+                b. Public constructor to call parent constructor with message.
+
+
+=> Entities: 1. Door:
+                a. Attributes: (DoorState state) it is private.
+                b. Public constructor to set the attributes.
+                c. Methods: (open(), close(amount), isOpen(), getState()) All are public synchronized.
+
+            2. Request:
+                a. Attributes: (floor, Direction, RequestType, timestamp) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods: (getFloor(), getDirection(), getType(), getTimestamp()) All are public.
+
+            3. Floor:
+                a. Attributes: (floorNumber, upButtonPressed, DownButtonPressed, Display) All are private and floorNumber, display are final.
+                b. Public constructor to set all attributes.
+                c. Methods: (pressUpButton(), pressDownButton(), resetButton()) All are public.
+                d. Methods: (getFloorNumber(), getDisplay(), isUpButtonPressed(), isDownButtonPressed()) All are public.
+
+            4. Elevator:
+                a. Attributes: (id, totalFloors, Door, Display, upRequests, downRequests, currentFloor, observers, ElevatorState, Direction) All are private final except direction, state, currentFloor.
+                b. Public constructor to set all attributes.
+                c. Methods: (getId(), getTotalFloors(), getDisplay(), openDoor(), closeDoor(), addObserver(ElevatorObserver), notifyObservers()) All are public.
+                d. Methods: (getCurrentFloor(), getState(), getDirection(), setDirection(), setState(), hasRequests(), hasUpRequests(), hasDownRequests()) All are public and synchronized.
+                e. Methods: (addRequest(floor, Direction), getNextStop(), removeCurrentFloorFromRequests(), moveToFloor(floor)) All are public and synchronized.
+
+
+=> Observers: 1. ElevatorObserver interface:
+                a. Methods: (onElevatorStateChanged(elevatorId, floor, Direction)).
+
+             2. Display:
+                a. It implements ElevatorObserver interface.
+                b. Attributes: (elevatorId, currentFloor, currentDirection) All are private and elevatorId is final.
+                c. Public constructor to set the attributes.
+                c. Methods: (shor(), getElevatorId()) All are public.
+                d. It also implements interface methods.
+
+
+=> Strategies: 1. DispatchStrategy interface:
+                a. Methods: (selectElevator(List<Elevator> elevators, floor, Direction>)).
+                b. Classes NearestElevatorStrategy, ZoneBasedStrategy implement the interface.
+                c. Classes implements the interface method.
+                d. NearestElevatorStrategy has private final attribute totalFloors and public constructor to set the attribute.
+                e. ZoneBasedStrategy has private final attribute Map<Integer, Integer> zoneAssignments and public constructor to set the attribute.
+
+
+=> Core: 1. ElevatorController:
+            a. It implements Runnable interface.
+            b. Attributes: (Elevator, running) running is private volatile boolean and Elevator is private final.
+            c. Public constructor to set attributes.
+            d. It implement the run function of Runnable interface.
+            e. Methods: (processRequests(), serveFloor(), stop()) All are public.
+
+         2. ElevatorSystem:
+            a. Attribute: (instance) It is private static volatile.
+            b. Attributes: (List<Elevator> elevators, List<ElevatorController> controllers, List<Floor> floors, List<Thread> controllerThreads, DispatchStrategy) All are private final except DispatchStrategy.
+            c. Private constructor to set the attributes and avoid multiple object creation.
+            d. Method: (getInstance(numFloors, numElevators)) It is public static.
+            e. Methods: (getElevators(), getFloors(), setDispatchStrategy(), shutDown()) All are public.
+            f. Method: (requestElevator(floor, Direction)) It is public synchronized.
+
+
+=> Demo: 1. Create ElevatorSystem instance with numFloors and numElevators.
+         2. Request elevators with different combination of floors and directions.
+         3. Shutdown the elevator.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of selecting elevator.
+2. Singleton Design Pattern to create only single instance of ElevatorSystem.
+3. Facade Design Pattern to have ElevatorSystem interface which separate client and internal complex system.
+4. Observer Design Pattern to update the display of elevators and floors.

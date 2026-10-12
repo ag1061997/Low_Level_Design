@@ -1,0 +1,55 @@
+################ Functional Requirements #################
+=> Support creation and management of multiple topics.
+=> Allow multiple publishers to publish message to topic.
+=> Allow multiple subscribers to subscribe one or more topics.
+=> Deliver message to all active subscriber of the topic.
+=> An error in delivering message to one subscriber must not stop delivery to other subscribers.
+=> No need for retries or acknowledgments of delivery.
+
+
+################ Non-Functional Requirements ##############
+=> System follow OOPS concepts.
+=> It should be extensible, allowing future support for new features like retries, delivery guarantee etc.
+=> System should support concurrent subscribers and publishers.
+=> Message ordering must remain consistent within the topic.
+
+
+################ Code Implementation ##############
+
+=> Entities: 1. Message:
+                a. Attributes: (payload, timestamp) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods:  (getPayload()) It is public.
+
+             2. Topic:
+                a. Attributes: (name, Set<Subscriber> subscribers) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods: (getName(), addSubscriber(Subscriber), removeSubscriber(Subscriber), broadcast(Message)) All are public.
+
+=> Subscriber: 1. Subscriber interface:
+                a. Methods: (getId(), onMessage(Message)).
+                b. Class AlertSubscriber and NewsSubscriber implements the interface.
+                c. Both classes have private final id.
+                d. Both classes have public constructor to set attribute.
+                e. Both classes implement the methods of interface.
+
+=> Core: 4. PubSubService:
+            a. Attribute: (INSTANCE) It is private static volatile.
+            b. It has private constructor to avoid object creation and set attributes.
+            c. Method: (getInstance()) It is public static synchronized.
+            d. Attributes: (Map<String, Topic> topicRegistry) It is private final.
+            b. Methods: (createTopic(topicName), subscribe(topicName, Subscriber), unsubscribe(topicName, Subscriber), publish(topicName, Message), shutdown()) All are public.
+
+=> Demo: 1. Create PubSubService Instance.
+         2. Create Multiple Subscribers.
+         3. Create multiple topics.
+         4. Add Subscribers to each topic.
+         5. Publish message in multiple topics.
+         6. Remove Subscribers from topic.
+         7. Shutdown PubSubService.
+
+
+################ Design Patterns ##############
+=> Facade Pattern to have single interface PubSubService between client and internal systems.
+=> Observer Pattern as when one message is publish to any topic, it is delivered to other subscribers of the topic.
+=> Singleton Pattern to restrict multiple object creation of the PubSubService.

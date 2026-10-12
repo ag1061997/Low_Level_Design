@@ -3,17 +3,42 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Managing_States/ATM/ATM.iml" filepath="$PROJECT_DIR$/Managing_States/ATM/ATM.iml" />
+      <module fileurl="file://$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Amazon/Amazon.iml" filepath="$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Amazon/Amazon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Amazon_Locker/Amazon_Locker.iml" filepath="$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Amazon_Locker/Amazon_Locker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/Bloom_Filter/Bloom_Filter.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/Bloom_Filter/Bloom_Filter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Communication_And_Messaging/Chat_Application/Chat_Application.iml" filepath="$PROJECT_DIR$/Communication_And_Messaging/Chat_Application/Chat_Application.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Games_And_Puzzles/Chess/Chess.iml" filepath="$PROJECT_DIR$/Games_And_Puzzles/Chess/Chess.iml" />
       <module fileurl="file://$PROJECT_DIR$/Communication_And_Messaging/Communication_And_Messaging.iml" filepath="$PROJECT_DIR$/Communication_And_Messaging/Communication_And_Messaging.iml" />
       <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/Data_Structures_And_Search.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/Data_Structures_And_Search.iml" />
       <module fileurl="file://$PROJECT_DIR$/Developer_Tools_And_Infrastructure/Developer_Tools_And_Infrastructure.iml" filepath="$PROJECT_DIR$/Developer_Tools_And_Infrastructure/Developer_Tools_And_Infrastructure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/E_Commerce_And_Booking_Systems/E_Commerce_And_Booking_Systems.iml" filepath="$PROJECT_DIR$/E_Commerce_And_Booking_Systems/E_Commerce_And_Booking_Systems.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Managing_States/Elevator_System/Elevator_System.iml" filepath="$PROJECT_DIR$/Managing_States/Elevator_System/Elevator_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Financial_And_Payment_Systems/Financial_And_Payment_Systems.iml" filepath="$PROJECT_DIR$/Financial_And_Payment_Systems/Financial_And_Payment_Systems.iml" />
+      <module fileurl="file://$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Food_Delivery_Service/Food_Delivery_Service.iml" filepath="$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Food_Delivery_Service/Food_Delivery_Service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Games_And_Puzzles/Games_And_Puzzles.iml" filepath="$PROJECT_DIR$/Games_And_Puzzles/Games_And_Puzzles.iml" />
       <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/LRU_cache/LRU_cache.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/LRU_cache/LRU_cache.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Management_Systems/Library_Management_System/Library_Management_System.iml" filepath="$PROJECT_DIR$/Management_Systems/Library_Management_System/Library_Management_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Developer_Tools_And_Infrastructure/Logging_Framework/Logging_Framework.iml" filepath="$PROJECT_DIR$/Developer_Tools_And_Infrastructure/Logging_Framework/Logging_Framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Low_Level_Design.iml" filepath="$PROJECT_DIR$/.idea/Low_Level_Design.iml" />
       <module fileurl="file://$PROJECT_DIR$/Management_Systems/Management_Systems.iml" filepath="$PROJECT_DIR$/Management_Systems/Management_Systems.iml" />
       <module fileurl="file://$PROJECT_DIR$/Managing_States/Managing_States.iml" filepath="$PROJECT_DIR$/Managing_States/Managing_States.iml" />
+      <module fileurl="file://$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Movie_Booking_System/Movie_Booking_System.iml" filepath="$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Movie_Booking_System/Movie_Booking_System.iml" />
       <module fileurl="file://$PROJECT_DIR$/Communication_And_Messaging/Notification_System/Notification_System.iml" filepath="$PROJECT_DIR$/Communication_And_Messaging/Notification_System/Notification_System.iml" />
       <module fileurl="file://$PROJECT_DIR$/Management_Systems/Parking_Lot/Parking_Lot.iml" filepath="$PROJECT_DIR$/Management_Systems/Parking_Lot/Parking_Lot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Financial_And_Payment_Systems/Payment_Gateway/Payment_Gateway.iml" filepath="$PROJECT_DIR$/Financial_And_Payment_Systems/Payment_Gateway/Payment_Gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Communication_And_Messaging/Pub_Sub_System/Pub_Sub_System.iml" filepath="$PROJECT_DIR$/Communication_And_Messaging/Pub_Sub_System/Pub_Sub_System.iml" />
       <module fileurl="file://$PROJECT_DIR$/Developer_Tools_And_Infrastructure/Rate_Limiter/Rate_Limiter.iml" filepath="$PROJECT_DIR$/Developer_Tools_And_Infrastructure/Rate_Limiter/Rate_Limiter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Management_Systems/Task_Management/Task_Management.iml" filepath="$PROJECT_DIR$/Management_Systems/Task_Management/Task_Management.iml" />
+      <module fileurl="file://$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Ride_Sharing_Service/Ride_Sharing_Service.iml" filepath="$PROJECT_DIR$/E_Commerce_And_Booking_Systems/Ride_Sharing_Service/Ride_Sharing_Service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/Search_Autocomplete_System/Search_Autocomplete_System.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/Search_Autocomplete_System/Search_Autocomplete_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Data_Structures_And_Search/Simple_Search_Engine/Simple_Search_Engine.iml" filepath="$PROJECT_DIR$/Data_Structures_And_Search/Simple_Search_Engine/Simple_Search_Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Social_And_Content_Platforms/Social_And_Content_Platforms.iml" filepath="$PROJECT_DIR$/Social_And_Content_Platforms/Social_And_Content_Platforms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Financial_And_Payment_Systems/Splitwise/Splitwise.iml" filepath="$PROJECT_DIR$/Financial_And_Payment_Systems/Splitwise/Splitwise.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Social_And_Content_Platforms/Stack_Overflow/Stack_Overflow.iml" filepath="$PROJECT_DIR$/Social_And_Content_Platforms/Stack_Overflow/Stack_Overflow.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Management_Systems/Task_Management_System/Task_Management_System.iml" filepath="$PROJECT_DIR$/Management_Systems/Task_Management_System/Task_Management_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Games_And_Puzzles/Tic_Tac_Toe/Tic_Tac_Toe.iml" filepath="$PROJECT_DIR$/Games_And_Puzzles/Tic_Tac_Toe/Tic_Tac_Toe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Managing_States/Traffic_Control_System/Traffic_Control_System.iml" filepath="$PROJECT_DIR$/Managing_States/Traffic_Control_System/Traffic_Control_System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Developer_Tools_And_Infrastructure/URL_Shortner/URL_Shortner.iml" filepath="$PROJECT_DIR$/Developer_Tools_And_Infrastructure/URL_Shortner/URL_Shortner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Managing_States/Vending_Machine/Vending_Machine.iml" filepath="$PROJECT_DIR$/Managing_States/Vending_Machine/Vending_Machine.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,72 @@
+################ Functional Requirements #################
+=> Support rate limiting on a per-user basis.
+=> Support 3 rate limiting algorithm, fixed window counter, token bucket and sliding window log algorithm selectable at runtime.
+=> Reject request that exceed the allowed limit and send appropriate response.
+=> Support update of limits at runtime.
+=> Provide simple way to simulate requests in demo method.
+
+
+################ Non-Functional Requirements ##############
+=> Must handle concurrent access from multiple thread without race condition.
+=> Design follow OOPS concept.
+=> Design should be flexible enough to support other rate limiting strategies like strong window log.
+=> Codebase should be clean, testable and easy to debug.
+=> Implementation should efficiently support high frequency request using optimized data structure.
+
+
+################ Code Implementation ##############
+
+=> Strategy : 1. RateLimiter Interface:
+                a. Methods: (boolean allowRequest(userId)).
+
+              2. FixedWindowRateLimiter implements RateLimiter interface:
+                a. Attributes: (maxRequests, windowSize, Map<String, UserRequestInfo> userRequestMap) All are private final.
+                b. Public constructor to set attributes.
+                c. Private static inner UserRequestInfo class:
+                    1. Attributes: (windowStart, requestCount) All are default.
+                    2. Default constructor to set the attributes.
+                    3. Method: (reset(newStart)) It is default.
+                d. It implements the interface method.
+                e. Method: (updateLimit(newLimit)) It is public.
+
+              3. TokenBucketRateLimiter implements RateLimiter interface:
+                a. Attributes: (capacity, reFillRatePerSecond, Map<String, TokenBucket> userBuckets) All are private final.
+                b. Public constructor to set attributes.
+                c. Private static inner TokenBucket class:
+                    1. Attributes: (tokens, reFillRatePerSecond, capacity, lastRefillTimeStamp) All are default and reFillRatePerSecond, capacity is final.
+                    2. Default constructor to set the attributes.
+                    3. Method: refill(currentTime) It is default.
+                d. It implements the interface method.
+
+              4. SlidingWindowLogRateLimiter implements RateLimiter interface:
+                a. Attributes: (maxRequests, windowSize, Map<String, Deque<Long>> userLogs) All are private final.
+                b. Public constructor to set attributes.
+                c. It implements the interface method.
+                d. Method: (updateLimit(newLimit)) It is public.
+
+
+=> Core: 1. RateLimiterService:
+            a. Attribute: (instance) It is private static volatile.
+            b. Private constructor to set attributes and avoid multiple object creation.
+            c. Method: (getInstance()) It is public static.
+            d. Attribute: (RateLimiter) It is private.
+            e. Methods: (setRateLimiter(rateLimiter), handleRequest(userId)) Both are public.
+
+
+=> Demo: 1. For Fixed Window Counter:
+            a. Create FixedWindowRateLimiter with maxRequest and windowSize.
+            b. getInstance() of RateLimiterService.
+            c. Set RateLimiter to fixedWindowStrategy.
+            d. Send multiple requests using loop.
+
+         2. For Token Bucket:
+            a. Create TokenBucketRateLimiter with capacity and refillRatePerSecond.
+            b. getInstance() of RateLimiterService.
+            c. Set RateLimiter to tokenBucketStrategy.
+            d. Send multiple requests using loop.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different strategies/algorithms of RateLimiter.
+2. Singleton Design Pattern to create only single instance of core.RateLimiterService.
+3. Facade Design Pattern to have core.RateLimiterService interface which separate client and internal complex system.

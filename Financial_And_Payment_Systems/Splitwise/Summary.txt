@@ -1,0 +1,95 @@
+################ Functional Requirements #################
+=> Support adding users with basic profile information.
+=> Support creating groups of users for shared expenses.
+=> Support adding expenses with split types like equal, exact, percentage based.
+=> Track pairwise net balances between users.
+=> Support partial and full settlement between the users.
+=> Notify users on expense addition and settlement.
+=> Handle rounding differences in equal and percentage splits.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design handle concurrent expense addition.
+=> Design should be modular and extensible to support new split types.
+=> Components should be testable in isolation.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. SplitType:
+            a. Attributes: (EQUAL, EXACT, PERCENTAGE).
+
+=> Entities: 1. User:
+                a. Attributes: (id, name, email, phone) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getEmail(), getPhone()) All are public.
+
+             2. Group:
+                a. Attributes: (id, name, List<String> memberIds, List<String> expenseIds) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (addMember(userId), addExpense(expenseId), getId(), getName(), getMemberIds(), getExpenseIds()) All are public.
+
+             3. Split:
+                a. Attributes: (userId, amount) All are private final except amount.
+                b. Public constructor to set the attributes.
+                c. Methods: (getUserId(), getAmount(), setAmount()) All are public.
+                d. Class EqualSplit, ExactSplit, PercentageSplit extends the Split class.
+                e. PercentageSplit class also have private final percentage attribute and getPercentage() method.
+                f. All classes have public constructor which call the parent constructor.
+
+             4. Expense:
+                a. Attributes: (id, amount, description, paidByUserId, List<Split> splits, SplitType, groupId, createdAt) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getAmount(), getDescription(), getPaidByUserId(), getSplits(), getSplitType(), getGroupId(), getCreatedAt()) All are public.
+
+=> Strategy: 1. SplitStrategy interface:
+                a. Method: (validate(List<Split> splits, totalAmount), calculateSplits(List<Split> splits, totalAmount)).
+                b. Classes EqualSplitStrategy, ExactSplitStrategy, PercentageSplitStrategy implements the interface.
+                c. All classes implement the interface method.
+
+=> Exceptions: 1. UserNotFoundException:
+                a. It extends RuntimeException class.
+                b. Public constructor to call parent constructor.
+
+               2. GroupNotFoundException:
+                a. It extends RuntimeException class.
+                b. Public constructor to call parent constructor.
+
+               3. InvalidSplitException:
+                a. It extends RuntimeException class.
+                b. Public constructor to call parent constructor.
+
+=> Observer: 1. ExpenseObserver interface:
+                a. Method: (onExpenseAdded(Expense), onSettlement(fromUserId, toUserId, amount)).
+                b. Class EmailNotificationObserver implements the interface.
+                c. Class implement the interface methods.
+
+=> Core: 1. SplitwiseService:
+            a. Attribute: (instance) It is private static volatile.
+            b. Attributes: (List<User>, List<Group>, List<Expense>, BalanceSheet, Map<SplitType, SplitStrategy>, CopyOnWriteArrayList<ExpenseObserver>) All are private final.
+            c. Private constructor to set attributes and avoid multiple object creation.
+            d. Method: (getInstance(), resetInstance()) Both are public static.
+            e. Methods: (addUser(User), createGroup(id, name), addMemberToGroup(groupId, userId), getBalance(userId1, userId2), getBalancesOfUser(userId), addObserver(ExpenseObserver)) All are public.
+            f. Methods: (addExpense(id, amount, description, groupId, paidByUserId, List<Split>, SplitType), settleUp(fromUserId, toUserId, amount)) Both are public.
+
+         2. BalanceSheet:
+            a. Attribute: (ConcurrentHashMap<String, ConcurrentHashMap<String, Double>> balances) It is private final.
+            b. Public constructor to set the attribute.
+            c. Methods: (updateBalance(fromUserId, toUserId, amount), settleUp(fromUserId, toUserid, amount)) Both are public synchronized.
+            d. Methods: (getBalance(userId1, userId2), getBalancesForUser(userId)) Both are public.
+
+
+=> Demo: 1. Create SplitwiseService instance.
+         2. Add ExpenseObserver in instance.
+         3. Create multiple users.
+         4. Create group and add users in it.
+         5. Test by creating expenses with different SplitType.
+         6. Test the settleUp feature.
+         7. print the final balances.a
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of calculating split amount.
+2. Singleton Design Pattern to create only single instance of SplitwiseService.
+3. Facade Design Pattern to create SplitwiseService interface between client and internal system.
+4. Observer Design Pattern to notify ExpenseObserver on each expense addition and settlement.

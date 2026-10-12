@@ -1,0 +1,124 @@
+FR:
+1. Support multiple parking floors.
+2. Different VehicleSize.
+3. Auto assign parking spot with different strategies.
+4. Create parking ticket with track of entry and exit time.
+5. Calculate parking price based on entry and exit time with different strategies.
+6. Display available parking spots based on vehicle size.
+
+LLD:
+Class ParkingLot {                                             // Singleton Design Pattern, Facade Design Pattern
+    // Attributes:
+        private static volatile ParkingLot instance;
+        List<ParkingFloor> floors;
+        Map<String, ParkingTickets> activeTickets;
+        AllocationStrategy allocationStrategy;
+        FeeStrategy  feeStrategy;
+
+    // Constructor:
+        private constructor;
+
+    // Methods:
+        public static ParkingLot getInstance();
+        public void initializeParkingLot(List<ParkingFloor>, AllocationStrategy, FeeStrategy);
+        public void parkVehicle(Vehicle);
+        public void unparkVehicle(ticketId);
+        public List<ParkingSpot> displayAvailableSpots();
+
+    //Setters
+        public void setAllocationStrategy();
+        public void setFeeStrategy();
+}
+
+Class ParkingFloor {
+    // Attributes:
+        id;
+        List<ParkingSpot>  spots;
+
+    // Constructor:
+        Public constructor;
+
+    // Methods:
+        public List<ParkingSpot> getAvailableSpots(VehicleSize);
+
+    // Getter:
+        getId();
+        getSpots();
+}
+
+Enum VehicleSize {
+    SMALL, MEDIUM, LARGE
+}
+
+Class ParkingSpot {
+    // Attribute:
+        id;
+        VehicleSize spotSize;
+        Vehicle parkedVehicle;
+        isEvSpot;
+
+    // Constructor:
+        Public constructor;
+
+    // Methods:
+        public isAvailable();
+        public hasCharger();
+        public canFitVehicle(VehicleSize);               $$$$$$$
+        public synchronized void parkVehicle();
+        public synchronized void unparkVehicle();
+
+    // Getters:
+        getId();
+        getSpotSize();
+        getParkedVehicle();
+}
+
+class Vehicle {
+    // Attributes:
+        licenseNumber;
+        VehicleSize size;
+
+    // Constructor:
+        Public constructor;
+
+    // Getters:
+        getLicenseNumber();
+        getSize();
+}
+
+Class ParkingTicket {
+    // Attributes:
+       id;
+       Vehicle vehicle;
+       ParkingSpot spot;
+       entryTime;
+       exitTime;
+
+    // Constructor:
+        Public constructor;
+
+    // Methods:
+       public calculateNumberOfHours();
+
+    // Setters:
+        void setExitTime(exitTime);
+
+    // Getters:
+        getId;
+        getVehicle();
+        getSpot();
+        getEntryTime();
+        getExitTime();
+}
+
+interface AllocationStrategy {                                                       // Strategy Design Pattern
+    ParkingSpot allocateSpot(List<ParkingFloor> floors, VehicleSize);
+
+    // Implemented by BestFitStrategy, EvChargerStrategy, NearestSpotStrategy;
+}
+
+interface FeeStrategy {                                                              // Strategy Design Pattern
+    ParkingSpot calculateFee(ParkingTicket);
+
+    // Implemented by FlatRateStrategy, HourlyRateStrategy, VehicleBasedStrategy;
+}

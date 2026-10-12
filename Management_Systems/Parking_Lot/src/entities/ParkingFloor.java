@@ -2,38 +2,47 @@ package entities;
 
 import enums.VehicleSize;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class ParkingFloor {
     private final int floorNumber;
-    private final Map<String, ParkingSpot> spots;
+    private final List<ParkingSpot> spots;
 
-    public ParkingFloor(int floorNumber) {
+    public ParkingFloor(int floorNumber, Map<VehicleSize, Integer> spotCounts) {
         this.floorNumber = floorNumber;
-        this.spots = new ConcurrentHashMap<>();
+        this.spots = new ArrayList<>();
+        initializeSpots(spotCounts);
     }
 
-    public void addSpot(ParkingSpot spot) {
-        spots.put(spot.getSpotId(), spot);
-    }
-
-    public synchronized Optional<ParkingSpot> findAvailableSpot(Vehicle vehicle) {
-        return spots.values().stream()
-                .filter(spot -> spot.isAvailable() && spot.canFit(vehicle))
-                .sorted(Comparator.comparing(ParkingSpot::getSpotSize))
-                .findFirst();
-    }
-
-    public void displayAvailability() {
-        Map<VehicleSize, Long> availableCounts = spots.values().stream()
-                .filter(spot -> spot.isAvailable())
-                .collect(Collectors.groupingBy(ParkingSpot::getSpotSize, Collectors.counting()));
-        for(VehicleSize size: VehicleSize.values()) {
-            System.out.println(size + " " + availableCounts.getOrDefault(size, 0L));
+    private void initializeSpots(Map<VehicleSize, Integer> spotCounts) {
+        for (VehicleSize size : VehicleSize.values()) {
+            int count = spotCounts.getOrDefault(size, 0);
+            String prefix = getSizePrefix(size);
+            for (int i = 1; i <= count; i++) {
+                String spotId = String.format("F%d-%s%03d", floorNumber, prefix, i);
+                spots.add(new ParkingSpot(spotId, size, false));
+            }
         }
     }
+
+    private String getSizePrefix(VehicleSize size) {
+        switch (size) {
+            case SMALL: return "S";
+            case MEDIUM: return "M";
+            case LARGE: return "L";
+            default: return "X";
+        }
+    }
+
+    public ParkingSpot findAvailableSpot(VehicleSize size) {
+        for (ParkingSpot spot : spots) {
+            if (spot.isAvailable() && spot.canFitVehicle(size)) {
+                return spot;
+            }
+        }
+        return null;
+    }
+
+    public int getFloorNumber() { return floorNumber; }
+    public List<ParkingSpot> getSpots() { return Collections.unmodifiableList(spots); }
 }

@@ -1,0 +1,29 @@
+################ Functional Requirements #################
+=> Support get(key) return the value of this key otherwise return null or -1.
+=> Support put(key,value) insert the new key value pair or update the value if key is already present.
+=> If cache exceeds capacity it should automatically evict least recently used key.
+=> Both get and put method update the recency of accessed or inserted item.
+=> key and value should be generic (e.g <K,V>)
+
+
+################ Non-Functional Requirements ##############
+=> Both get and put method run in O(1) time on average.
+=> Implementation must be thread safe for use in concurrent environment.
+=> Design must follow OOPS concepts.
+=> Internal data structure must be space and speed optimize in defined constraint.
+
+
+################ Code Implementation ##############
+
+=> Node<K,V> : 1. Attributes: (K key, V value, Node<K,V> prev, Node<K,V> next).
+               2. Constructor to set key and value.
+
+=> DoublyLinkedList<K, V> : 1. Attributes: (head, tail) All are private final Node<K,V>.
+                            2. Public constructor to set head and tail with node of null values and link each other.
+                            3. Methods: (addFirst(node), remove(node), moveToFront(node), removeLast(node)) All are public.
+
+=> LRUCache<K, V> : 1. Attributes: (int capacity, Map<K, Node<K,V> > map, DoublyLinkedList<K,V> list) All are private final.
+                    2. Public constructor to set all the attributes.
+                    3. Method: (get(key)) method to get node from map if present and moveToFront in list.
+                    4. Method: (put(key, value)) method to insert and update item in hashmap and moveToFront in list and removeLast if capacity exceeds.
+                    5. Both methods are public synchronized for thread safety.

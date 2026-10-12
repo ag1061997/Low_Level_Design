@@ -1,58 +1,46 @@
 package entities;
 
 import enums.VehicleSize;
+import exceptions.ParkingException;
 
 public class ParkingSpot {
     private final String spotId;
-    private boolean isOccupied;
-    private Vehicle parkedVehicle;
-    private final VehicleSize spotSize;
+    private final VehicleSize size;
+    private volatile Vehicle parkedVehicle;
+    private final boolean chargingPoint;
 
-    public ParkingSpot(String spotId, VehicleSize spotSize) {
+    public ParkingSpot(String spotId, VehicleSize size, boolean chargingPoint) {
         this.spotId = spotId;
+        this.size = size;
         this.parkedVehicle = null;
-        this.isOccupied = false;
-        this.spotSize = spotSize;
+        this.chargingPoint = chargingPoint;
     }
 
-    public String getSpotId() {
-        return spotId;
-    }
-
-    public VehicleSize getSpotSize() {
-        return spotSize;
-    }
-
-    public synchronized boolean isAvailable() {
-        return !isOccupied;
-    }
-
-    public synchronized boolean isOccupied() {
-        return isOccupied;
-    }
+    public boolean isAvailable() { return parkedVehicle == null; }
+    public boolean hasCharger() { return chargingPoint; }
+    public boolean canFitVehicle(VehicleSize vehicleSize) { return vehicleSize.ordinal() <= this.size.ordinal(); }
 
     public synchronized void parkVehicle(Vehicle vehicle) {
-        this.parkedVehicle = vehicle;
-        this.isOccupied = true;
-    }
-
-    public synchronized void unParkVehicle() {
-        this.parkedVehicle = null;
-        this.isOccupied = false;
-    }
-
-    public boolean canFit(Vehicle vehicle) {
-        if(isOccupied) return false;
-
-        switch (vehicle.getSize()) {
-            case SMALL:
-                return spotSize == VehicleSize.SMALL;
-            case MEDIUM:
-                return spotSize == VehicleSize.MEDIUM || spotSize == VehicleSize.LARGE;
-            case LARGE:
-                return spotSize == VehicleSize.LARGE;
-            default:
-                return false;
+        if (!isAvailable()) {
+            throw new ParkingException("Spot " + spotId + " is already occupied");
         }
+        if (!canFitVehicle(vehicle.getSize())) {
+            throw new ParkingException("Vehicle size " + vehicle.getSize() +
+                    " cannot fit in spot size " + size);
+        }
+        this.parkedVehicle = vehicle;
     }
+
+    public synchronized Vehicle unparkVehicle() {
+        if (isAvailable()) {
+            throw new ParkingException("Spot " + spotId + " is already empty");
+        }
+        Vehicle vehicle = this.parkedVehicle;
+        this.parkedVehicle = null;
+        return vehicle;
+    }
+
+    public String getSpotId() { return spotId; }
+    public VehicleSize getSize() { return size; }
+    public Vehicle getParkedVehicle() { return parkedVehicle; }
 }

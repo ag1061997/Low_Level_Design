@@ -1,0 +1,51 @@
+################ Functional Requirements #################
+=> Support add(element): to add string element in filter.
+=> support mightContain(element): to return true it might be in set otherwise false.
+=> Support clear(): to reset filter to initial state.
+=> Filter should compute optimal bit array size and number of hash function from caller parameters.
+=> Caller should able to choose which hash function algo to use.
+
+
+################ Non-Functional Requirements ##############
+=> add(element) and mightContain(element) work in O(k) where k is no. of hash function.
+=> Filter use less memory than storing all elements explicitly.
+=> Handle concurrency for add and mightContain function.
+=> Caller can specify expectedElement, false positive rate and hash strategy.
+
+
+################ Code Implementation ##############
+
+=> Entities: 1. BitArray:
+                a. Attributes: (boolean[] bits, size) All are private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (set(position), get(position), clear(), size()) All are public.
+
+             1. BloomFilterConfig:
+                a. Attributes: (expectedElements, falsePositiveRate, bitArraySize, numHashFunctions) All are private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (getExpectedElements(), getFalsePositiveRate(), getBitArraySize(), getNumHashFunctions()) All are public.
+
+=> Strategy: 1. HashStrategy interface:
+                a. Method: (hash(element, seed, bitArraySize)).
+                b. Classes DJB2HashStrategy, FNVHashStrategy, MurmurHashStrategy implements the interface.
+                c. FNVHashStrategy class has private static final attributes FNV_OFFSET_BASIS, 0x01000193.
+                d. All classes implement the interface method.
+
+=> Core: 3. BloomFilter:
+            a. Attributes: (BloomFilterConfig, BitArray, HashStrategy) All are private final.
+            b. Private constructor to set the attributes.
+            c. Methods: (add(element), mightContain(element), clear(), getConfig()) All are public synchronized except getConfig.
+            d. It has public static Builder class.
+            e. Builder class has private attributes expectedElements, falsePositiveRate, hashStrategy.
+            f. Builder class has public constructor to set attributes.
+            g Builder class has public methods falsePositiveRate(rate), hashStrategy(HashStrategy), build().
+
+
+=> Demo: 1. Create multiple instances of BloomFilter with different combination of its attributes.
+         2. Add elements in each instance of BloomFilter.
+         3. Check mightContain and clear function.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of key hashing of element.
+2. Builder Design Pattern to create BloomFilter instance and set variable attributes according to requirement.

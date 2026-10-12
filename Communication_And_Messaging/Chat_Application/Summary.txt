@@ -1,0 +1,62 @@
+################ Functional Requirements #################
+=> Support one-one and group chat.
+=> Allow user to view chat history.
+=> Messages sent successfully cannot be edited or deleted.
+=> Message order is preserved.
+
+
+################ Non-Functional Requirements ##############
+=> System follow OOPS concepts.
+=> It should be extensible, allowing future support for new features like file sharing, message reaction etc.
+=> System should support concurrent users and deliver messages in real-time delivery.
+=> Code should be clean, testable and easy to update.
+
+
+################ Code Implementation ##############
+
+=> Entities: 1. Message:
+                a. Attributes: (id, sender, content, timestamp) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods:  (getId(), getSender(), getContent(), getTimestamp()) All are public.
+
+             2. User:
+                a. Attributes: (id, name) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods: (getId(), getName(), onMessageReceived(Message, Chat)) All are public.
+
+=> Core: 1. Chat abstract class:
+            a. Attributes: (id, List<User> members, List<Message> messages) All are private final.
+            b. Public constructor to set all attributes.
+            c. Methods:  (getId(), getMembers(), getMessages(), addMessage(Message)) All are public.
+            d. Method: (getName(User)) It is public abstract.
+
+         2. OneToOneChat:
+            a. It extends Chat class.
+            b. Public constructor to call parent constructor and add users in member list.
+            c. It implements abstract method of parent.
+
+         3. GroupChat:
+            a. It extends Chat class.
+            b. Attribute: (groupName) It is private.
+            c. Public constructor to set attribute, call parent constructor and add users in member list.
+            d. Methods: (addMember(User), removeMember(User)) All are public.
+            e. It implements abstract method of parent.
+
+         4. ChatService:
+            a. Attributes: (Map<String, User> users, Map<String, Chat> chats) All are private final.
+            b. Methods: (createUser(name), createOneToOneChat(userId1, userId2), createGroupChat(groupName, List<String> memberIds)) All are public.
+            c. Methods: (sendMessage(senderId, chatId, messageContent), printChatHistory(chatId), getUserChats(userId)) All are public.
+
+=> Demo: 1. Create ChatService Instance.
+         2. Create Multiple users.
+         3. Create OneToOneChat and send messages.
+         4. Create GroupChat and send messages.
+         5. Print Chat history of any chat.
+         6. Print All chats of any user.
+
+
+################ Design Patterns ##############
+=> Mediator pattern as ChatService act as communication hub and users objects never reference each other directly.
+=> Observer Pattern as when one user send message it is notified to other members of the chat.
+=> Simple Factory as ChatService centralized the object creation. So client never call constructor directly.
+=> Polymorphic Chat Naming as 2 classes implements the same abstract method of parent class differently.

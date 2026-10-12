@@ -1,0 +1,95 @@
+FR:
+1. Support per-user rate limiting.
+2. Support 3 algorithm, fixed window counter, token bucket and sliding window log configurable at runtime.
+3. Reject all request which exceeds the limit.
+4. Allow update of limits at runtime.
+
+LLD:
+
+class RateLimiterService {                                   // Singleton Design Pattern, Facade Design Pattern
+    // Attributes:
+        private static volatile RateLimiterService instance;
+        private RateLimiter rateLimiter;
+
+    // Constructor:
+        private constructor;
+
+    // Methods:
+        public static RateLimiter getInstance();
+        handleRequest(userId);
+
+    // Setter:
+        setRateLimiter(RateLimiter);
+}
+
+interface RateLimiter {                                  // Strategy Design Pattern
+    boolean allowRequest(userId);
+
+    // implemented by FixedWindowRateLimiter, TokenBucketRateLimiter, SlidingWindowLogRateLimiter
+}
+
+class FixedWindowRateLimiter {
+    // Attributes:
+        maxRequests;
+        windowSize;
+        Map<String, UserRequestInfo> userRequests;
+
+    // Constructor:
+        public constructor;
+
+    // Methods:
+        public void updateLimit(newLimit);
+        public boolean allowRequest(userId);
+
+    // public static Class UserRequestInfo:
+        // Attributes:
+            startTime;
+            requestCount;
+
+        // Constructor:
+            public constructor;
+
+        // Methods:
+            public void reset(currentTime);
+}
+
+class TokenBucketRateLimiter {
+    // Attributes:
+        capacity;
+        refillRatePerSecond;
+        Map<String, TokenBucket> tokenBucket;
+
+    // Constructor:
+        public constructor;
+
+    // Methods:
+        public void updateCapacity(newCapacity);
+        public boolean allowRequest(userId);
+
+    // public static Class TokenBucket:
+        // Attributes:
+            capacity;
+            refillRatePerSecond;
+            tokens;
+            lastRefillTime;
+
+        // Constructor:
+            public constructor;
+
+        // Methods:
+            public void refill(currentTime);
+}
+
+class SlidingWindowLogRateLimiter {
+    // Attributes:
+        maxRequests;
+        windowSize;
+        Map<String, Deque<Long>> userRequestTimes;
+
+    // Constructor:
+        public constructor;
+
+    // Methods:
+        public void updateLimit(newLimit);
+        public boolean allowRequest(userId);
+}

@@ -1,0 +1,108 @@
+################ Functional Requirements #################
+=> Support multiple item types like Book, Magazines with room to add more item types.
+=> Track multiple copy of same item with its own availability status.
+=> Allow add items to catalog with number of copies.
+=> Register member to borrow items.
+=> Member can checkout/return item.
+=> When no copy is available member can place an hold and get notified when copy is available.
+=> Member can search the item by title or author.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable in isolation.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. ItemType:
+            a. Attributes: (BOOK, MAGAZINE).
+
+
+=> Entities: 1. Member:
+                a. Attributes: (id, name, List<Loan> loans) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getLoans(), addLoan(Loan), removeLoan(Loan), update(LibraryItem)) All are public.
+
+             2. Loan:
+                a. Attributes: (BookCopy copy, Member member, LocalDate checkoutDate) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getCopy(), getMember(), getCheckoutDate()) All are public.
+
+             3. LibraryItem abstract class:
+                a. Attributes: (id, title, List<BookCopy> copies, List<Member> observers) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (addCopy(BookCopy), addObserver(Member), removeObserver(Member), notifyObservers(), hasObservers(), isObserver(Member)) All are public.
+                d. Methods: (getId(), getTitle(), getCopies(), getAvailableCopyCount()) All are public.
+                e. Public abstract method getAuthorOrPublisher().
+                f. Class Book, Magazine, EBook extends the LibraryItem class.
+                g. All classes also have private final author attribute and Magazine class has private final publisher attribute.
+                h. All classes have public constructor which call the parent constructor and set its attributes.
+                i. All classes implement the abstract method.
+                j. EBook class has private attributes totalLicenses, activeLoans and has public synchronized methods lend(), returnLicense().
+
+             4. BookCopy:
+                a. Attributes: (id, LibraryItem item, ItemState currentState) All are private final except currentState it is volatile.
+                b. Public constructor to set the attributes.
+                c. Methods: (checkout(Member), returnItem(), placeHold(Member)) All are public and currentState.checkout is synchronized.
+                d. Methods: (setState(ItemState), getId(), getItem(), isAvailable()) All are public.
+
+
+=> Factory: 1. ItemFactory:
+                a. Public static createItem(ItemType item, id, title, authorOrPublisher) method.
+
+
+=> Strategy: 1. SearchStrategy interface:
+                a. Method: (search(query, List<LibraryItem> items)).
+                b. Classes SearchByAuthorStrategy, SearchByTitleStrategy implements the interface.
+                c. All classes implement the interface method.
+
+             2. FineStrategy interface:
+                a. Method: (calculateFine(Loan loan, LocalDate returnD).
+                b. Class PerDayFineStrategy implements the interface.
+                c. This class implement the interface method.
+                d. This class has private static final attributes RATE_PER_DAY, LOAN_PERIOD_DAYS.
+
+             3. RecommendationStrategy interface:
+                a. Method: (recommend(Member member, List<LibraryItem> catalog)).
+                b. Class SameAuthorStrategy implements the interface.
+                c. This class implement the interface method.
+
+
+=> States: 1. ItemState interface:
+               a. Method: (checkout(BookCopy, Member), returnItem(BookCopy), placeHold(BookCopy, Member)).
+               b. Classes AvailableState, CheckedOutState, OnHoldState implements the interface.
+               c. All classes implement the interface method.
+
+
+=> Services: 1. TransactionService:
+                a. Attribute: (INSTANCE) It is private static volatile.
+                b. Attributes: (Map<String, Loan> activeLoans) All are private final.
+                c. Private constructor to set attributes and avoid multiple object creation.
+                d. Method: (getInstance()) It is public static.
+                e. Methods: (createLoan(BookCopy, Member), endLoan(BookCopy)) Both are public and createLoan is synchronized.
+
+
+=> Core: 1. LibraryManagementSystem:
+            a. Attribute: (INSTANCE) It is private static volatile.
+            b. Private constructor to set attributes and avoid multiple object creation.
+            c. Method: (getInstance()) It is public static.
+            d. Attributes: (Map<String, LibraryItem> catalog, Map<String, Member> members, Map<String, BookCopy> copies) All are private final.
+            e. Methods: (addItem(ItemType, id, title, author, numCopies), addMemberToGroup(id, name), checkout(memberId, copyId), returnItem(copyId), placeHold(memberId, copyId)) All are public.
+            f. Methods: (search(query, SearchStrategy), printCatalog()) Both are public.
+
+
+=> Demo: 1. Create LibraryManagementSystem instance.
+         2. Create multiple LibraryItems and their copies.
+         3. Create multiple members.
+         4. Test different types of search types.
+         5. Test checkout, returnItem, placeHold features in different states of BookCopy.
+         6. Print catalog at different places.
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of Searching catalog.
+2. Singleton Design Pattern to create only single instance of LibraryManagementSystem and TransactionService.
+3. Facade Design Pattern to create LibraryManagementSystem interface between client and internal system.
+4. Factory Design Pattern to create different LibraryItem based of ItemType.
+5. State Design Pattern to implement same functionalities of BookCopy in different states.

@@ -38,13 +38,4 @@ public class LRUCache<K, V> {
             map.put(key, newNode);
         }
     }
-
-    public synchronized void remove(K key) {
-        if(!map.containsKey(key)) {
-            return;
-        }
-        Node<K, V> node = map.get(key);
-        dll.remove(node);
-        map.remove(key);
-    }
 }

@@ -1,0 +1,67 @@
+################ Functional Requirements #################
+=> Index Predefined documents in the memory.
+=> Support case sensitive, keyword-based search.
+=> Support basic ranking of search results.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concepts.
+=> Design is extensible for future features.
+=> Design is easily testable.
+=> Design is optimized for fast lookup of search query.
+
+
+################ Code Implementation ##############
+
+=> Entities: 1. Document:
+                a. Attributes: (id, title, content) All are private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (getId(), getTitle(), getContent()) All are public.
+
+             2. SearchResult:
+                a. Attributes: (Document, score) All are private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (getDocument(), getScore()) All are public.
+
+             3. Posting:
+                a. Attributes: (documentId, frequency) All are private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (getDocumentId(), getFrequency()) All are public.
+
+             4. InvertedIndex:
+                a. Attributes: (Map<String, List<Posting> > index) It is private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (add(term, documentId, frequency), getPostings(term)) All are public.
+
+=> Strategy: 1. RankingStrategy interface:
+                a. Method: (rank(List<SearchResult> results)).
+                b. Classes ScoreBasedRankingStrategy, ScoreThenAlphabeticalRankingStrategy implements the interface.
+                c. All classes implement the interface method.
+
+             1. ScoringStrategy interface:
+                a. Method: (calculateScore(term, Posting, Document)).
+                b. Classes TermFrequencyScoringStrategy, TitleBoostScoringStrategy implements the interface.
+                c. All classes implement the interface method.
+                d. TitleBoostScoringStrategy has private static final attribute TITLE_BOOST_FACTOR.
+
+=> Core: 1. DocumentStore:
+            a. Attributes: (Map<String, Document> documents) All are private final.
+            b. Methods: (addDocument(Document), getDocument(documentId)) All are public.
+
+         2. SearchEngine:
+            a. Attribute: (instance) It is private static volatile.
+            b. Attributes: (InvertedIndex, DocumentStore, RankingStrategy, ScoringStrategy) All are private final except RankingStrategy, ScoringStrategy.
+            c. Private constructor to set attributes and avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            e. Methods: (setRankingStrategy(RankingStrategy), setScoringStrategy(ScoringStrategy)) All are public.
+            f. Methods: (indexDocument(Document), indexDocuments(List<Document>, search(query))) All are public.
+
+=> Demo: 1. Create instance of SearchEngine and ranking, scoring strategies.
+         2. Create multiple documents and index the documents.
+         3. Search different queries.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of ranking, scoring the documents.
+2. Singleton Design Pattern to avoid multiple instance creation of SearchEngine.
+3. Facade Design Pattern to create SearchEngine interface between client and internal system.

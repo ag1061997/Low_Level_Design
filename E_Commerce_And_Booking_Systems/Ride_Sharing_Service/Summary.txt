@@ -1,0 +1,105 @@
+################ Functional Requirements #################
+=> Allow rider to request ride based on pickup, dropOff location and rideType.
+=> Notify drivers when the ride is requested.
+=> Allow driver to accept, start and end trip.
+=> Update trip status on complete trip lifecycle and notify rider on trip status update.
+=> Maintain trips history for riders and drivers.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. DriverStatus:
+            a. Attributes: (OFFLINE, IN_TRIP, ONLINE).
+
+          2. RideType:
+            a. Attributes: (SEDAN, SUV, AUTO).
+
+          3. TripStatus:
+            a. Attributes: (REQUESTED, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED).
+
+=> Entities: 1. User abstract class:
+                a. Attributes: (id, name, contact, List<Trip> tripHistory) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getContact(), getTripHistory(), addTripToHistory(Trip)) All are public.
+                d. It implements the TripObserver interface.
+
+             2. Rider:
+                a. It extends the User class.
+                b. Public constructor to call parent class constructor.
+                c. It implements the TripObserver interface method.
+
+             3. Driver:
+                a. It extends the User class.
+                b. Attributes: (Vehicle, Location, DriverStatus) All are private.
+                c. Public constructor to call parent class constructor and set all the attributes.
+                d. Methods: (getVehicle(), getStatus(), getCurrentLocation(), setStatus(DriverStatus), setCurrentLocation(Location), tryClaimForTrip()) All are public and tryClaimForTrip is synchronized.
+                e. It implements the TripObserver interface method.
+
+             4. Location:
+                a. Attributes: (latitude, longitude) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (distanceTo(Location)) All are public.
+
+             5. Vehicle:
+                a. Attributes: (licenseNumber, model, RideType) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getLicenseNumber(), getModel(), getType()) All are public.
+
+             8. Trip:
+                a. Attributes: (id, Rider, Driver, pickupLocation, dropOffLocation, fare, TripState, List<TripObserver> observers) All are private final except Driver.
+                b. It has public static TripBuilder class.
+                c. TripBuilder class has attributes id, Rider, pickupLocation, dropOffLocation, fare which are private and id is final also.
+                d. TripBuilder class has public constructor to set required attributes.
+                e. TripBuilder class has public methods withRider(Rider), withPickupLocation(Location), withDropOffLocation(Location), withFare(fare), build().
+                f. Private constructor to set the attributes using TripBuilder class.
+                g. Methods: (addObserver(TripObserver), notifyObservers(), setState(TripState), setDriver(Driver), assignDriver(Driver), startTrip(), endTrip()) All are public and assignDriver, startTrip, endTrip are synchronized.
+                h. Methods: (getId(), getRider(), getDriver(), getPickupLocation(), getDropoffLocation(), getFare(), getStatus()) All are public.
+
+=> Observer: 1. TripObserver interface:
+                a. Method: (onUpdate(Trip)) It is public.
+
+=> States: 1. TripState interface:
+              a. Method: (getStatus(), assignDriver(Trip, Driver), startTrip(Trip), endTrip(Trip)).
+              b. Classes RequestedState, AssignedState, InProgressState, CompletedState implements the interface.
+              c. Classes implement the interface methods.
+
+=> Strategy: 1. DriverMatchingStrategy interface:
+                a. Method: (findDrivers(List<Driver> drivers, pickupLocation, RideType)).
+                b. Class NearestDriverMatchingStrategy implements the interface.
+                c. Class implement the interface methods.
+                d. Class has private static final attribute MAX_DISTANCE.
+
+             2. PricingStrategy interface:
+                a. Method: (calculateFare(pickup, dropOff, RideType)).
+                b. Classes FlatRatePricingStrategy, VehicleBasedPricingStrategy implements the interface.
+                c. All Classes implement the interface method.
+                d. Class FlatRatePricingStrategy has private static final attributes BASE_FARE, FLAT_FARE.
+                e. Class VehicleBasedPricingStrategy has private static final attributes BASE_FARE, Map<RideType, Double> RATE_PER_KM.
+
+=> Core: 1. RideSharingService:
+            a. Attribute: (instance) It is private static volatile.
+            b. Attributes: (Map<String, Rider> riders, Map<String, Driver> drivers, Map<String, Trip> trips, Map<String, DriverMatchingStrategy, PricingStrategy) All are private final except DriverMatchingStrategy, PricingStrategy.
+            c. Private constructor to set attributes and avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            e. Methods: (setDriverMatchingStrategy(DriverMatchingStrategy), setPricingStrategy(PricingStrategy), registerRider(name, contact), registerDriver(name, contact, Vehicle, Location), goOnline(driverId), goOffline(driverId)) All are public.
+            f. Methods: (requestRide(riderId, pickup, dropOff, RideType), assignDriver(driverId, tripId), startTrip(tripId), endTrip(tripId)) All are public.
+
+=> Demo: 1. Create RideSharingService instance and set DriverMatchingStrategy, PricingStrategy.
+         2. Create multiple Drivers, Riders.
+         3. Put Drivers online.
+         4. Request multiple rides with different pickup and dropOff location.
+
+################ Design Patterns ##############
+
+
+1. Strategy Design Pattern to implement different ways of driver matching and pricing fare.
+2. Singleton Design Pattern to create only single instance of RideSharingService.
+3. Facade Design Pattern to create RideSharingService interface between client and internal system.
+4. Observer Design Pattern to notify relevant party on update of trip status.
+5. State Design Pattern to manage the trip lifecycle in different states.

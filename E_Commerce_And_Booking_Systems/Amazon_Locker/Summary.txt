@@ -1,0 +1,104 @@
+################ Functional Requirements #################
+=> Deliver a package to an available locker at specific location.
+=> Generate 6-digit pickup code with 3 day expiry.
+=> Validate the pickup code and release package to customer.
+=> Assign smallest locker that fit package, trying larger size if needed.
+=> Automatically return expired packages and free lockers.
+=> Notify customer with code, locker location and expiry.
+=> Support multiple locker locations, each with set of lockers.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+=> Design should be thread-safe for concurrent delivery and pickup.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. LockerSize:
+            a. Attributes: (SMALL, MEDIUM, LARGE, XL).
+            b. Attributes: (maxHeight, maxWidth, maxDepth) All are private final.
+            c. Default constructor to set the attributes.
+            d. Methods: (getMaxHeight(), getMaxWidth(), getMaxDepth()) All are public.
+
+          2. LockerStatus:
+            a. Attributes: (AVAILABLE, OCCUPIED, OUT_OF_SERVICE).
+
+          2. PackageStatus:
+            a. Attributes: (CREATED, DELIVERED, PICKED_UP, RETURNED)
+
+
+=> Exceptions: 1. InvalidCodeException:
+                a. It extends RuntimeException.
+                b. Public constructor to call parent constructor.
+
+               2. NoAvailableLockerException:
+                a. It extends RuntimeException.
+                b. Public constructor to call parent constructor.
+
+               3. PackageAlreadyPickedUpException:
+                a. It extends RuntimeException.
+                b. Public constructor to call parent constructor.
+
+               4. PackageExpiredException:
+                a. It extends RuntimeException.
+                b. Public constructor to call parent constructor.
+
+
+=> Entities: 1. LockerCode:
+                a. Attributes: (code, packageId, expirationTime) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getCode(), getPackageId(), getExpirationTime(), isExpired()) All are public.
+
+             2. Package:
+                a. Attributes: (id, orderId, PackageStatus status, LockerSize) All are private final except status.
+                b. Public constructor to set the attributes.
+                c. Method: (getId(), getOrderId(), getStatus(), getLockerSize(), setStatus(PackageStatus)) All are public.
+
+             3. Locker:
+                a. Attributes: (id, LockerSize size, LockerStatus status, Package currentPackage, LockerCode currentCode) All are private and is, size are final.
+                b. Public constructor to set the attributes.
+                c. Methods: (assignPackage(Package pkg, LockerCode code), releasePackage()) All are public synchronized.
+                d. Methods: (isAvailable(), getId(), getSize(), getStatus(), getCurrentPackage(), getCurrentCode()) All are public.
+
+             4. LockerLocation:
+                a. Attributes: (id, address, Map<String, Locker> lockers) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getAddress(), getAllLockers(), getAvailableLockersBySize(LockerSize), getLocker(lockerId), addLocker(Locker)) All are public.
+
+
+=> Strategy: 1. LockerAssignmentStrategy interface:
+                a. Method: (assignLocker(LockerSize requiredSize, List<Locker> availableLockers)).
+                b. Class SmallestLockerStrategy implements the interface.
+                c. Class implement the interface methods.
+
+
+=> Services: 1. NotificationService interface:
+                a. Method: (notifyCustomer(orderId, code, lockerAddress, expirationTime)).
+                b. Class ConsoleNotificationService implement the interface.
+                c. Class implement the interface method.
+
+
+=> Core: 1. LockerSystem:
+            a. Attribute: (instance) It is private static volatile.
+            b. Private constructor to set attributes and avoid multiple object creation.
+            c. Method: (getInstance()) It is public static.
+            d. Attributes: (Map<String, LockerLocation> locations, Map<String, String> packageLockerMap, Map<String, String> packageLocationMap, Map<String, String> packageCodeMap, LockerAssignmentStrategy, NotificationService) All are private final except LockerAssignmentStrategy, NotificationService.
+            e. Methods: (setAssignmentStrategy(LockerAssignmentStrategy), setNotificationService(NotificationService), addLocation(LockerLocation)) All are public.
+            f. Methods: (deliverPackage(Package pkg, locationId), deliverPackageWithCustomExpiry(Package pkg, locationId, expirySeconds), pickupPackage(locationId, lockerId, code), cleanupExpiredPackages(), getCodeForPackage(packageId)) All are public.
+            g. Method: (generateCode()) It is private.
+
+
+=> Demo: 1. Create LockerSystem instance and setAssignmentStrategy, setNotificationService.
+         2. Create multiple Locker, LockerLocation and Package.
+         3. Deliver and pickup packages.
+         4. Clean up Expired packages.
+
+
+################ Design Patterns ##############
+
+1. Strategy Design Pattern to implement different ways of locker assignment.
+2. Singleton Design Pattern to create only single instance of LockerSystem.
+3. Facade Design Pattern to create LockerSystem interface between client and internal system.

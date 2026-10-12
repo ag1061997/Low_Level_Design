@@ -17,7 +17,6 @@ public class TokenBucketRateLimiter implements RateLimiter {
     public boolean allowRequest(String userId) {
         long currentTime = System.currentTimeMillis();
         userBuckets.putIfAbsent(userId, new TokenBucketRateLimiter.TokenBucket(capacity, refillRatePerSecond, currentTime));
-
         TokenBucket tokenBucket = userBuckets.get(userId);
 
         synchronized (tokenBucket) {
@@ -37,14 +36,14 @@ public class TokenBucketRateLimiter implements RateLimiter {
         final int refillRatePerSecond;
         long lastRefillTimestamp;
 
-        public TokenBucket(int capacity, int refillRatePerSecond, long currentTimeMillis) {
+        TokenBucket(int capacity, int refillRatePerSecond, long currentTimeMillis) {
             this.tokens = capacity;
             this.capacity = capacity;
             this.refillRatePerSecond = refillRatePerSecond;
             this.lastRefillTimestamp = currentTimeMillis;
         }
 
-        public void refill(long currentTime) {
+        void refill(long currentTime) {
             long elapsedTime = currentTime - lastRefillTimestamp;
             int tokensToAdd = (int) ((elapsedTime / 1000.0) * refillRatePerSecond);
 

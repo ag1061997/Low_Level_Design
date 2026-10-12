@@ -1,0 +1,81 @@
+################ Functional Requirements #################
+=> Support standard 8*8 chess board with all six type of pieces.
+=> Enforce piece-specific movement rules.
+=> Validate that moves don't leave the moving player's King in check.
+=> Detect check, checkmate and stalemate conditions automatically.
+=> Support special moves: castling (king side and queen side), en passant, and pawn promotion.
+=> Track move history.
+=> Support player resignation.
+=> Enforce turn-based play.
+=> Initialize the board in the standard starting positions.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. Color:
+            a. Attributes: (BLACK, WHITE).
+            b. Method: (opposite()) It is public
+
+          2. GameStatus:
+            a. Attributes: (ACTIVE, CHECK, CHECKMATE, STALEMATE, RESIGNED).
+
+          3. PieceType:
+            a. Attributes: (KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN).
+
+=> Entities: 1. Position:
+                a. Attributes: (row, col) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getRow(), getCol()) All are public.
+
+             2. Player:
+                a. Attributes: (name, Color) All are private final
+                b. Public constructor to set the attributes.
+                c. Methods: (getName(), getColor()) All are public.
+
+             3. Move:
+                a. Attributes: (Position source, Position destination, Piece piece, capturedPiece, isPromotion, PieceType promotedTo) All are private final except capturedPiece, isPromotion, promotedTo.
+                b. Public constructor to set the attributes.
+                c. Methods: (getSource(), getDestination(), getPiece(), getCapturedPiece(), setCapturedPiece(Piece), isPromotion(), getPromotedTo(), setPromotion(promotion, promotedTo)) All are public.
+
+=> Pieces: 1. Piece abstract class:
+              a. Attributes: (PieceType, Color, hasMoved) All are protected final except hasMoved.
+              b. Public constructor to set the attributes.
+              c. Methods: (getPieceType(), getColor(), hasMoved(), setHasMoved(moved)) All are public.
+              d. Method: (canMove(Board, Position from, Position to)) It is public abstract method.
+              e. Classes King, Queen, Rook, Bishop, Knight, Pawn extends the class Piece.
+              f. All classes have public constructor to call parent constructor and set the attributes.
+              g. All classes implement the canMove method of parent class.
+
+=> Exceptions: 1. ChessException:
+                a. It extends the RuntimeException class.
+                b. Public constructor to call the parent class constructor.
+
+=> Core: 1. Board:
+            a. Attributes: (Piece[][] grid) It is private final.
+            b. Public constructor to set attributes and call initialize method.
+            c. Method: (initialize()) It is private.
+            d. Methods: (getPiece(Position), setPiece(Position, Piece), movePiece(Position from, Position to), isValidPosition(row, col), findKing(Color)) All are public.
+
+         1. Game:
+            b. Attributes: (Player[] players, GameStatus status, Color currentTurn, Board, Color winner, List<Move> moveHistory) All are private final except currentTurn, status, winner.
+            c. Public constructor to set attributes.
+            c. Methods: (isValidEnPassant(Position from, Position to, Position capturedPawnPos),
+                        executeCastlingRookMove(Position kingFrom, Position kingTo),
+                        undoMove(Move move, Position from, Position to, Piece piece, Piece capturedPiece, boolean wasEnPassant),
+                        undoCastlingRookMove(Position kingFrom, Position kingTo),
+                        hasAnyLegalMove(Color color),
+                        isLegalMove(Position from, Position to),
+                        updateGameStatus()) All are private.
+            d. Methods: (makeMove(Position from, Position to), isInCheck(Color), isCheckMate(Color), isStalemate(Color), resign(Color), getStatus(), getWinner(), getBoard(), getCurrentTurn(), getMoveHistory()) All are public.
+
+=> Demo: 1. Create Players.
+         2. Create game instance.
+         3. Make multiple moves for different values of from and to position.
+         4. Print MoveHistory.
+         5. Try to make move after the game is over.

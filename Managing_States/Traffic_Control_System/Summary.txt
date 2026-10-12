@@ -1,0 +1,70 @@
+################ Functional Requirements #################
+=> Handle multiple intersections.
+=> Control signal for all for directions at one intersection.
+=> Configurable timing for green and yellow phases.
+=> Automatically cycle through signal phases in the correct order.
+=> Notify central monitor when traffic light state change.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+=> Timing should be precise to the second, ensuring sync across lights.
+=> System prevent conflicting signals from being active simultaneously.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. Direction:
+            a. Attributes: (NORTH, SOUTH, EAST, WEST).
+
+          2. LightColor:
+            a. Attributes: (GREEN, YELLOW, RED).
+
+=> Observer: 1. TrafficObserver interface:
+                a. Method: (update(intersectionId, Direction, LightColor)) It is public.
+                b. Class CentralMonitor implements this interface.
+                c. This class implement the method of interface.
+
+=> States: 1. SignalState interface:
+              a. Method: (handle(TrafficLight)).
+              b. Classes RedState, GreenState, YellowState implements the interface.
+              c. Classes implement the interface method.
+
+           2. IntersectionState interface:
+              a. Method: (handle(IntersectionController)).
+              b. Classes EastWestGreenState, NorthSouthGreenState implements the interface.
+              c. Classes implement the interface method.
+
+=> Core: 1. TrafficControlSystem:
+            a. Attribute: (INSTANCE) It is private static volatile.
+            b. Attributes: (List<IntersectionController> intersections, ExecutorService) Both are private final except executorService.
+            c. Private constructor to set attributes and avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            f. Methods: (addIntersection(intersectionId, greenDuration, yellowDuration), startSystem(), endSystem()) All are public.
+
+         2. TrafficLight:
+            a. Attributes: (Direction, currentColor, SignalState currentState, SignalState nextState, intersectionId, List<TrafficObserver> observers) All are private final except currentState, nextState, currentColor.
+            b. Public constructor to set the attributes.
+            c. Methods: (startGreen(), transition(), setColor(LightColor), setNextState(SignalState), getCurrentColor(), getDirection(), addObserver(TrafficObserver), removeObserver(TrafficObserver), notifyObservers()) All are public.
+
+         2. IntersectionController:
+            a. Attributes: (id, greenDuration, yellowDuration, Map<Direction, TrafficLight>, IntersectionState currentState, running) All are private final except currentState and running is volatile.
+            b. Private constructor to set the attributes.
+            c. It implements the Runnable interface.
+            c. Methods: (getId(), getYellowDuration(), getGreenDuration(), getTrafficLight(Direction), setState(IntersectionState), start(), stop(), run()) All are public.
+            d. It has public static Builder class.
+            e. Build class has private attributes final id, greenDuration, yellowDuration, final List<TrafficObserver> observers.
+            f. Builder class has public constructor to set the attributes.
+            g. Builder class has public methods withDuration(greenDuration, yellowDuration), addObserver(TrafficObserver), build().
+
+=> Demo: 1. Create TrafficControlSystem instance and add intersections.
+         2. Start the system and stop the system after some time.
+
+################ Design Patterns ##############
+2. Singleton Design Pattern to create only single instance of TrafficControlSystem.
+3. Facade Design Pattern to create TrafficControlSystem interface between client and internal system.
+4. Observer Design Pattern to notify Central Monitor for monitoring.
+5. State Design Pattern to manage the Traffic Light and Intersection Controller states.
+6. Builder Design Pattern to create flexible and configurable Intersection Controller.

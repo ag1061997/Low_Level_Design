@@ -1,0 +1,142 @@
+################ Functional Requirements #################
+=> User can search product by name and category.
+=> User can view product details.
+=> Support add/remove items in cart.
+=> Allow user to place order from items in cart.
+=> Validate inventory before order and update stock.
+=> Support multiple payment gateway.
+=> User can view past orders.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+=> Inventory and order placement must be consistent.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. OrderStatus:
+            a. Attributes: (PLACED, SHIPPED, DELIVERED, CANCELLED, RETURNED).
+
+          2. ProductCategory:
+            a. Attributes: (ELECTRONICS, BOOKS, CLOTHING, HOME_GOODS, GROCERY).
+
+
+=> Exceptions: 1. OutOfStockException:
+                a. It extends RuntimeException.
+                b. Public constructor to call parent constructor.
+
+
+=> Entities: 1. Customer:
+                a. Attributes: (id, name, email, Account, Address shippingAddress) All are private final except shippingAddress.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getEmail(), getAccount(), getShippingAddress(), setShippingAddress(Address)) All are public.
+                d. It implements the OrderObserver interface.
+
+             2. Account:
+                a. Attributes: (email, password, ShoppingCart cart) All are private final
+                b. Public constructor to set the attributes.
+                c. Method: (getCart()) It is public.
+
+             3. Address:
+                a. Attributes: (street, city, state, zipcode) All are private final
+                b. Public constructor to set the attributes.
+
+             4. CartItem:
+                a. Attributes: (Product, quantity) All are private final except quantity.
+                b. Public constructor to set the attributes.
+                c. Methods: (getProduct(), getQuantity(), incrementQuantity(amount), getPrice()) All are public.
+
+             5. ShoppingCart:
+                a. Attributes: (Map<String, CardItem> items) It is private final.
+                b. Methods: (addItem(Product, quantity), removeItem(productId), getItems(), calculateTotal(), clearCart()) All are public and addItem is synchronized.
+
+             6. Product:
+                a. Attributes: (id, name, description, price, ProductCategory) All are protected.
+                b. It has public static Builder class.
+                c. Builder class has attributes name, description, price, ProductCategory which are private and name/price are final also.
+                d. Builder class has public constructor to set required attributes.
+                e. Builder class has public methods withDescription(description), withCategory(ProductCategory), build().
+                f. Protected constructor to set the attributes.
+                g. Methods: (getId(), getName(), getDescription(), getPrice(), getCategory()) All are public.
+
+             7. OrderLineItem:
+                a. Attributes: (productId, quantity, productName, priceAtPurchase) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getProductId(), getQuantity()) All are public.
+
+             8. Order:
+                a. Attributes: (id, Customer, List<OrderLineItem> items, Address shippingAddress, totalAmount, orderDate, OrderStatus status, OrderState currentState) All are private final except status, currentState.
+                b. Public constructor to set the attributes.
+                c. Methods: (shipOrder(), deliverOrder(), cancelOrder()) All are public.
+                d. Methods: (getId(), getStatus(), getItems(), setState(OrderState), setStatus(OrderStatus)) All are public.
+                e. It extends Subject class.
+
+
+=> Observer: 1. OrderObserver interface:
+                a. Method: (onUpdate(Order)) It is public.
+
+             2. Subject abstract class:
+                a. Attribute: (List<OrderObserver> observers) it is private final.
+                b. Methods: (addObserver(OrderObserver), removeObserver(OrderObserver), notifyObservers(Order)) All are public.
+
+
+=> States: 1. OrderState interface:
+              a. Method: (ship(Order), deliver(Order), cancel(Order)).
+              b. Classes PlacedState, ShippedState, DeliveredState, CancelledState implements the interface.
+              c. Classes implement the interface methods.
+
+
+=> Strategy: 1. PaymentStrategy interface:
+                a. Method: (pay(amount)).
+                b. Classes CreditCardPaymentStrategy, UPIPaymentStrategy implements the interface.
+                c. Classes implement the interface methods.
+                d. CreditCardPaymentStrategy class has private final attribute cardNumber and public constructor to set the attribute.
+                e. UPIPaymentStrategy class has private final attribute upiId and public constructor to set the attribute.
+
+
+=> Services: 1. SearchService:
+                a. Attributes: (Collection<Product> products) It is private final.
+                b. Public constructor to set the attribute.
+                c. Methods: (searchByName(name), searchByCategory(ProductCategory)) All are public.
+
+             2. PaymentService:
+                a. Method: (processPayment(PaymentStrategy, amount)) It is public.
+
+             3. OrderService:
+                a. Attributes: (InventoryService inventoryService) It is private final.
+                b. Public constructor to set the attribute.
+                c. Method: (createOrder(Customer, ShoppingCart)) It is public.
+
+             4. InventoryService:
+                a. Attributes: (Map<String, Integer> stock) It is private final.
+                b. Public constructor to set the attribute.
+                c. Method: (addStock(Product, quantity)) It is public.
+                d. Methods: (updateStockForOrder(List<OrderLineItem>), restock(List<OrderLineStock>)) All are public synchronized.
+
+
+=> Core: 1. OnlineShoppingSystem:
+            a. Attribute: (instance) It is private static volatile.
+            b. Private constructor to set attributes and avoid multiple object creation.
+            c. Method: (getInstance()) It is public static.
+            d. Attributes: (Map<String, Customer> customers, Map<String, Product> products, Map<String, Order> orders, InventoryService, PaymentService, OrderService, SearchService) All are private final.
+            e. Methods: (addProduct(Product, initialStock), registerCustomer(name, email, password, Address)) All are public.
+            f. Methods: (searchProducts(name), getCustomerCart(customerId), addToCart(customerId, Product, quantity), placeOrder(customerId, PaymentStrategy)) All are public.
+
+
+=> Demo: 1. Create OnlineShoppingSystem instance.
+         2. Create multiple Products, Customers and add to OnlineShoppingSystem instance.
+         3. Add multiple product to card and place the order.
+         4. Ship, deliver and cancel the order.
+
+
+################ Design Patterns ##############
+
+1. Strategy Design Pattern to implement different ways of payment.
+2. Singleton Design Pattern to create only single instance of OnlineShoppingSystem.
+3. Facade Design Pattern to create OnlineShoppingSystem interface between client and internal system.
+4. Observer Design Pattern to notify customer on update of order status.
+5. State Design Pattern to manage the order lifecycle in different states.
+6. Builder Design Pattern to create products with required and optional attributes.

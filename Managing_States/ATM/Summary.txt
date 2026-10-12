@@ -1,0 +1,101 @@
+################ Functional Requirements #################
+=> Support 3 transaction types: withdrawal, deposit, balance_enquiry.
+=> Authenticate users via card number and PIN.
+=> Validate both account balance and ATM cash inventory before dispensing.
+=> Dispense cash with large denomination first (100, 50, 20, 10).
+=> Track ATM state transitions (idle, card inserted, authenticated).
+=> Simulate bank operations (authentication, balance check, credit, debit) via in-memory service.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Must be thread safe to handle concurrent access.
+=> Design should be modular and extensible to support new transaction types and denominations.
+=> Codebase should be testable in isolation.
+=> Financial operations should validate-before-commit, always verify dispensing before debit.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. ATMState:
+            a. Attributes: (IDLE, CARD_INSERTED, AUTHENTICATED)
+
+          2. TransactionType:
+            a. Attributes: (WITHDRAWAL, DEPOSIT, BALANCE_ENQUIRY)
+
+          3. Denomination:
+            a. Attributes: (HUNDRED(100), FIFTY(50), TWENTY(20), TEN(10)).
+            b. Attribute: private final int value.
+            c. Constructor to set value.
+            d. Method: (getValue()) public
+
+=> Exceptions: 1. ATMException:
+                a. It extends RunTimeException.
+                b. Public constructor to call parent constructor with message.
+
+=> States : 1. ATMStateHandler interface:
+                a. Methods: (insertCard(ATM, Card), authenticate(ATM, pin), withdraw(ATM, amount), deposit(ATM, amount), checkBalance(ATM), ejectCard(ATM)).
+                b. Class: (IdleState, CardInsertedState, AuthticatedState) implements ATMStateHandler interface.
+                c. All these classes implements all methods of the interface according to the state of ATM.
+
+=> Models: 1. Account:
+                a. Attributes: (accountNumber, balance) Both are private and accountNumber is final.
+                b. Public constructor to set the attributes.
+                c. Methods: (debit(amount), credit(amount), getBalance()) All are public synchronized.
+                d. Method: (getAccountNumber()) It is public.
+
+            2. Card:
+                a. Attributes: (cardNumber, pin, accountNumber) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods: (getCardNumber(), getPin(), getAccountNumber()) All are public.
+
+            3. Transaction:
+                a. Attributes: (id, TransactionType, accountNumber, amount, timestamp) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods: (getId(), getTransactionType(), getAmount(), getAccountNumber(), getTimestamp()) All are public.
+
+=> Handlers: 1. CashHandler interface:
+                a. Methods: (setNextHandler(CashHandler), dispense(amount, Map<Denomination, Integer> result)).
+
+             2. DenominationHandler:
+                a. It implements CashHandler interface.
+                b. Attributes: (denomination, count, nextHandler) All are private and denomination is final.
+                c. Methods: (getDenomination(), getCount(), addBills(count), removeBills(count)) All are public.
+                d. It also implements interface methods.
+
+=> Core: 1. CashDispenser:
+            a. Attributes: (Map<Denomination, DenominationHandler> denominationHandlers, CashHandler chainHead) Both are private and denominationHandler is final.
+            b. Public constructor to set attributes.
+            c. Method: buildChain() to set chainHead and nextHandler for each denominationHandler.
+            d. Methods: (canDispense(amount), dispense(amount), addCash(Denomination, count), getTotalCash()) All are public synchronized.
+
+         2. BankService:
+            a. Attributes: (accounts, cards, transactionHistory, transactionCounter) All are private final except transactionCounter.
+            b. Public constructor to set the attributes.
+            c. Methods: (createAccount(accountNumber, initialBalance), createCard(cardNumber, pin, accountNumber)) All are public.
+            d. Methods: (authenticate(cardNumber, pin), debit(accountNumber, amount), credit(accountNumber, amount), getBalance(accountNumber)) All are public.
+            e. Methods: (recordTransaction(TransactionType, amount, accountNumber), getTransactionHistory(accountNumber)) All are public and recordTransaction is synchronized.
+
+         3. ATM:
+            a. Attribute: private static volatile ATM instance for singleton instance.
+            b. Attribute: (BankService, CashDispenser, currentState, currentCard, currentAccount, Map<ATMState, ATMStateHandler> stateHandlers) All are private final except currentCard, currentAccount, currentState.
+            c. Private constructor to avoid object creation and it sets all attributes.
+            d. public static ATM getInstance(BankService, CashDispenser) method with synchronized.
+            e. Methods: (insertCard(Card), authenticate(pin), withdraw(amount), deposit(amount), checkBalance(), ejectCard()) All are public synchronized.
+            f. Methods: (performWithdrawal(amount), performDeposit(amount), performBalanceEnquiry()) All are public.
+            g. Methods: (setCurrentCard(Card), setCurrentAccount(Account), setCurrentState(ATMState), getCurrentCard(), getCurrentState(), getCurrentAccount()) All are public.
+
+
+=> Demo: 1. Create multiple BankService and CashDispenser.
+         2. Create multiple accounts and cards and add them in BankService
+         2. Add cash of different denomination in CashDispenser.
+         4. Create ATM instance then test withdraw, deposit and check balance flow.
+         5. Print transaction history.
+         6. Print total remaining cash in ATM.
+
+
+################ Design Patterns ##############
+1. State Design Pattern to handle different operations in different states of ATM.
+2. Singleton Design Pattern to create only single instance of ATM.
+3. Facade Design Pattern to have ATM interface which separate client and internal complex system.
+4. Chain Of Responsibilities Design Pattern to link different denomination handlers from largest to smallest and these handlers passes the remainder to next handler.

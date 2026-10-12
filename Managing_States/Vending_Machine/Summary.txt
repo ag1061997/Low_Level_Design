@@ -1,0 +1,63 @@
+################ Functional Requirements #################
+=> Allow adding new items or restocking existing items in the vending machine.
+=> Allow users to view available items with their price.
+=> Accept coin based payment with fixed denominations (1,5,10).
+=> Users can select the item by entering the item code.
+=> Machine should dispense the selected item if sufficient money is inserted.
+=> Return change if the inserted amount exceed the item price.
+=> Allow users to cancel transaction before item dispensing and receive a full refund.
+=> Display intermediate states like inserted amount, item selected, or refund messages.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Machine must handle only 1 transaction, when the transaction is in progress, system is blocked to other inputs.
+=> Design should be modular and extensible to support new transaction types and denominations.
+=> System should be designed to support future features (digital payments) with minimal changes.
+=> Purchase operation must be atomic, user either receive the item and the change or the full refund.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. Coin:
+            a. Attributes: (PENNY(1), NICKEL(5), DIME(10), QUARTER(25)).
+            b. Attribute: private final int value.
+            c. Constructor to set value.
+            d. Method: (getValue()) public
+
+=> States : 1. VendingMachineState interface:
+                c. Methods: (insertCoin(VendingMachine, Card), selectItem(VendingMachine, code), dispense(VendingMachine), refund(VendingMachine)) All are public void.
+                d. Class: (IdleState, ItemSelectedState, HasMoneyState, DispensingState) implements VendingMachineState interface.
+                f. All these classes implements all methods of the interface according to the state of VendingMachine.
+
+=> Entities: 1. Item:
+                a. Attributes: (code, name, price) All are private final.
+                b. Public constructor to set the attributes.
+                d. Methods: (getName(), getCode(), getPrice()) All are public.
+
+            2. Inventory:
+                a. Attributes: (Map<String, Item> itemMap, Map<String, Integer> stockMap) All are private final.
+                b. Methods: (addItem(code, item, quantity), getItem(code), isAvailable(code), reduceStock(code)) All are public.
+
+=> Core: 1. VendingMachine:
+            a. Attribute: private static volatile VendingMachine INSTANCE for singleton instance.
+            b. Attribute: (Inventory, VendingMachineState currentState, balance, selectedItemCode) All are private and inventory is final also.
+            c. Private constructor to avoid object creation and it sets all attributes.
+            d. public static VendingMachine getInstance() method with synchronized.
+            e. Methods: (insertCoin(Coin), addItem(code, name, price, quantity), selectItem(code), dispense(), refund()) All are public synchronized.
+            f. Methods: (dispenseItem(), addBalance()) All are public.
+            g. Methods: (getSelectedItem(), getSelectedItemCode(), getBalance(), getCurrentState(), getInventory(), setCurrentState(VendingMachineState), setBalance(value), setSetectedItemCode(code)) All are public.
+
+
+=> Demo: 1. Create VendingMachine instance.
+         2. Add items in the the vending machine.
+         3. Select item and insert coin in the vending machine.
+         4. Now Dispense the item.
+         5. Now select another item and insert coin.
+         6. Now dispense the item again.
+
+
+################ Design Patterns ##############
+1. State Design Pattern to handle different operations in different states of core.VendingMachine.
+2. Singleton Design Pattern to create only single instance of core.VendingMachine.
+3. Facade Design Pattern to have core.VendingMachine interface which separate client and internal complex system.

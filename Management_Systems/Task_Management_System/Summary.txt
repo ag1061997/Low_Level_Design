@@ -1,0 +1,84 @@
+################ Functional Requirements #################
+=> Allow rider to request ride based on pickup, dropOff location and rideType.
+=> Notify drivers when the ride is requested.
+=> Allow driver to accept, start and end trip.
+=> Update trip status on complete trip lifecycle and notify rider on trip status update.
+=> Maintain trips history for riders and drivers.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+=> System is thread-safe for concurrent access.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. TaskPriority:
+            a. Attributes: (LOW, MEDIUM, HIGH, CRITICAL).
+
+          2. TaskStatus:
+            a. Attributes: (TODO, IN_PROGRESS, DONE, BLOCKED).
+
+=> Entities: 1. ActivityLog:
+                a. Attributes: (description, timestamp) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getDescription(), getTimestamp()) All are public.
+
+             2. Tag:
+                a. Attributes: (name) It is private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getName()) All are public.
+
+             3. User:
+                a. Attributes: (id, name, email) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getEmail()) All are public.
+
+             4. Comment:
+                a. Attributes: (id, content, User author, timestamp) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getAuthor(), getContent(), getTimestamp()) All are public.
+
+             5. Task:
+                a. Attributes: (name) It is private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getName()) All are public.
+
+             6. TaskList:
+                a. Attributes: (id, name, List<Task> tasks) It is private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getTasks(), addTask(Task), display()) All are public.
+
+=> States: 1. TaskState interface:
+              a. Method: (startProgress(Task task), completeTask(Task task), blockTask(Task task), reopenTask(Task task), getStatus()).
+              b. Classes TodoState, InProgressState, DoneState, BlockedState implements the interface.
+              c. Classes implement the interface methods.
+
+=> Strategy: 1. TaskSortStrategy interface:
+                a. Method: (sort(List<Task> tasks)).
+                b. Classes SortByDueDate, SortByPriority implements the interface.
+                c. Classes implement the interface methods.
+
+=> Core: 1. TaskManagementSystem:
+            a. Attributes: (Map<String, User> users, Map<String, Task> tasks, Map<String, TaskList> taskLists) All are private final.
+            b. Public constructor to set attributes.
+            c. Methods: (createUser(name, email), createTaskList(listName), createTask(title, description, dueDate, TaskPriority priority, createdByUserId)) All are public.
+            d. Methods: (listTasksByUser(userId), listTasksByStatus(TaskStatus), deleteTask(taskId), searchTasks(keyword, TaskSortStrategy)) All are public.
+
+=> Demo: 1. Create TaskManagementSystem instance.
+         2. Create multiple Users, Task, TaskList.
+         3. Add subTask in task and task in taskList.
+         4. Display taskList.
+         5. Search task by keyword.
+         6. Filter task by status and user.
+         7. Start, complete and delete task.
+         8. Add comments, tags in the task.
+         9. Print tags, comments and activity log.
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of sorting the tasks.
+2. State Design Pattern to manage the task lifecycle in different states.
+3. Builder Design Pattern to create flexible and configurable Tasks.
+4. Facade Design Pattern to create single TaskManagementSystem interface between client and internal systems.

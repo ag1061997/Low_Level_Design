@@ -1,0 +1,86 @@
+################ Functional Requirements #################
+=> Support multiple parking floors with configurable no. of parking spots.
+=> Classify parking spots with size (small, medium, large) and match them with appropriate vehicle type.
+=> Support multiple vehicle types like Bike, Car, Trucks.
+=> Automatically assign parking spots based on availability.
+=> Issue parking tickets on vehicle entry and track entry and exit time.
+=> Calculate parking fees based on duration of stay and support different pricing strategies like flat-rate or vehicle-type-based pricing.
+=> Support querying and displaying real-time availability of parking spots grouped by floor and spot size.
+=> Parking request can be hardcoded in demo class for simulation purpose.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Must handle concurrent entry/exit events without race condition.
+=> Design should be modular and extensible for future enhancements.
+=> Codebase should be testable in isolation.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. VehicleSize:
+            a. Attributes: (SMALL, MEDIUM, LARGE)
+
+
+=> Exceptions: 1. ParkingException:
+                a. It extends the RuntimeException.
+                b. Public constructor to call parent constructor.
+
+
+=> Strategy : 1. FeeStrategy Interface:
+                a. Methods: (calculateFee(ParkingTicket)).
+                b. Classes FlatRateFeeStrategy, HourlyFeeStrategy, VehicleBasedFeeStrategy implements the interface.
+                c. All classes implement the interface functions.
+                d. VehicleBasedFeeStrategy class has private final attribute flatRate, which is set by public constructor.
+                e. HourlyFeeStrategy class has private final attribute ratePerHour, which is set by public constructor.
+                f. VehicleBasedFeeStrategy class has private final Map<VehicleSize, Double> attribute ratesPerHour, which is set by public constructor.
+
+              2. SpotAllocationStrategy Interface:
+                a. Methods: (findSpot(List<ParkingFloor> floors, VehicleSize size)).
+                b. Classes BestFitStrategy, NearestFirstStrategy, EvPreferringStrategy implements the interface.
+                c. All classes implement the interface functions.
+
+
+=> Entities:  1. Vehicle class:
+                a. Attributes: (licensePlate, VehicleSize) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods: (getLicensePlate(), getSize()) All are public.
+
+              2. ParkingTicket:
+                a. Attributes: (ticketId, Vehicle, ParkingSpot, entryTime, exitTime) All are private final except exitTime is not final.
+                b. Public constructor to set all attributes except exitTime.
+                c. Methods: (getTicketId(), getVehicle(), getSpot(), getEntryTime(), getExitTime(), setExitTime(exitTime), getDurationInHours()) All are public.
+
+              3. ParkingSpot:
+                a. Attributes: (spotId, VehicleSize size,Vehicle parkedVehicle, chargingPoint) All are private final except parkedVehicle instead of final it is volatile.
+                b. Public constructor to set all attributes.
+                c. Methods: (getSpotId(), getSize(), getParkedVehicle(), isAvailable(), hasCharger(), canFitVehicle(VehicleSize)) All are public.
+                d. Methods: (parkVehicle(Vehicle), unparkVehicle()) All are public synchronized.
+
+              4. ParkingFloor:
+                a. Attributes: (floorNumber, List<ParkingSpot> spots) All are private final.
+                b. Public constructor to set all attributes and call initializeSpots function.
+                c. Methods: (initializeSpots(Map<VehicleSize, Integer> spotCounts), getSizePrefix(VehicleSize size)) All are private.
+                d. Methods: (getFloorNumber(), getSpots(), findAvailableSpot(VehicleSize)) All are public.
+
+
+=> Core: 1. ParkingLot:
+            a. Attribute: (instance) It is private static volatile.
+            b. Private constructor to set attributes and avoid multiple object creation.
+            c. Method: (getInstance()) It is public static.
+            d. Attributes: (List<ParkingFloor> floors, Map<String, ParkingTicket> activeTickets, FeeStrategy, SpotAllocationStrategy) All are private final.
+            e. Methods: (initialize(List<ParkingFloor>, FeeStrategy, SpotAllocationStrategy), setFeeStrategy(FeeStrategy), setAllocationStrategy(SpotAllocationStrategy)) All are public.
+            f. Methods: (parkVehicle(Vehicle), unparkVehicle(ticketId), displayAvailability()) Both are public.
+
+
+=> Demo: 1. Create ParkingLot instance.
+         2. Create multiple ParkingFloors and initialize the ParkingLot.
+         3. Park and UnPark different vehicles with different sizes.
+         4. Set different AllocationStrategies.
+         5. Display availability of parking spots at different stages.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different strategies of fees calculations and finding parking spots.
+2. Singleton Design Pattern to create only single instance of core.ParkingLot.
+3. Facade Design Pattern to have core.ParkingLot interface which separate client and internal complex system.

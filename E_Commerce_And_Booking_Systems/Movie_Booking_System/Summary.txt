@@ -1,0 +1,113 @@
+################ Functional Requirements #################
+=> Support multiple cities, cinemas, screens, shows.
+=> Each screen has defined layout of sets with different types.
+=> User can search based on movie title and city name.
+=> User can book one or more seats for a specific show.
+=> System support different pricing and payment strategies.
+=> Double booking should be prevented.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable in isolation.
+=> System must handle concurrent booking requests.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. PaymentStatus:
+            a. Attributes: (SUCCESS, FAILURE, PENDING).
+
+          2. SeatType:
+            a. Attributes: (REGULAR, PREMIUM, RECLINER).
+
+          3. SeatStatus:
+            a. Attributes: (AVAILABLE, LOCKED, BOOKED).
+
+=> Entities: 1. User:
+                a. Attributes: (id, name, email) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getEmail()) All are public.
+
+             2. City:
+                a. Attributes: (id, name) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName()) All are public.
+
+             3. Seat:
+                a. Attributes: (id, row, column, SeatType, SeatStatus) All are private final except SeatStatus.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getRow(), getColumn(), getType(), getStatus(), setStatus(SeatStatus)) All are public.
+
+             4. Screen:
+                a. Attributes: (id, List<Seat> seats) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getSeats(), addSeat(Seat)) All are public.
+
+             5. Cinema:
+                a. Attributes: (id, name, City, List<Screen> screens) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getCity(), getScreens()) All are public.
+
+             6. Payment:
+                a. Attributes: (id, amount, PaymentStatus status, transactionId) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getAmount(), getStatus(), getTransactionId()) All are public.
+
+             7. Movie:
+                a. Attributes: (id, title, durationInMinutes) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getTitle()) All are public.
+
+             8. Show:
+                a. Attributes: (id, Movie, Screen, startTime, Map<SeatType, Double> seatPrices, PricingStrategy, Object lock) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getMovie(), getScreen(), getStartTime(), getSeatPrices(), getPricingStrategy(), getLock()) All are public.
+
+             9. Booking:
+                a. Attributes: (id, User, Show, List<Seat> seats, totalAmount, Payment) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getUser(), getShow(), getSeats(), getTotalAmount(), getPayment()) All are public.
+
+=> Strategy: 1. PaymentStrategy interface:
+                a. Method: (pay(amount), refund(Payment)).
+                b. Class CreditCardPaymentStrategy implements the interface.
+                c. Class implement the interface methods.
+                d. Class has private final attributes cardNumber, cvv and a public constructor to set these attributes.
+
+             2. PricingStrategy interface:
+                a. Method: (calculate(List<Seat> seats, Map<SeatType, Double> seatPrices)).
+                b. Classes WeekdayPricingStrategy, WeekendPricingStrategy implements the interface.
+                c. Classes implement the interface method.
+                d. Class WeekendPricingStrategy has private static final attribute WEEKEND_SURCHARGE.
+
+=> Core: 1. MovieBookingService:
+            a. Attribute: (instance) It is private static volatile.
+            b. Attributes: (Map<String, City> cities, Map<String, User> users, Map<String, Cinema> cinemas, Map<String, Movie> movies, Map<String, Show> shows, Map<Screen, Cinema> screenToCinema, SeatLockManager, BookingManager) All are private final.
+            c. Private constructor to set attributes and avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            e. Methods: (addCity(id, name), addCinema(id, name, cityId, List<Screen> screens), addMovie(Movie), addShow(id, Movie, Show, startTime, seatPrices, PricingStrategy), createUser(name, email)) All are public.
+            f. Methods: (findShows(movieTitle, cityName), findCinemaForShow(Show), bookTickets(userId, showId, List<Seat>, PaymentStrategy), shutdown()) All are public.
+
+         2. SeatLockManager:
+            a. Attributes: (Map<Show, Map<Seat, String> > lockedSeats, Map<Show, Map<Seat, ScheduledFuture<?> > > expiryTasks, scheduler) All are private final.
+            b. Attribute: (LOCK_TIMEOUT_MS) It is private static final.
+            c. Methods: (lockSeats(Show, List<Seat>, userId), confirmSeats(Show, List<Seat>, userId), unlockSeats(Show, List<Seat>, userId), cancelExpiry(Show, Seat), shutDown()) All are public except cancelExpiry is private.
+
+         3. BookingManager:
+            a. Attribute: (SeatLockManager) It is private final.
+            b. Public constructor to set the attribute.
+            c. Method: (createBooking(User, Show, List<Seat>, PaymentStrategy)) It is public.
+
+
+=> Demo: 1. Create MovieBookingService instance.
+         2. Create multiple City, Screen, City, Movie, Show, Cinema, Seat.
+         3. Find shows.
+         4. Select the seats from available seats of show.
+         5. Book the tickets.
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of pricing and payment
+2. Singleton Design Pattern to create only single instance of MovieBookingService.
+3. Facade Design Pattern to create MovieBookingService interface between client and internal system.

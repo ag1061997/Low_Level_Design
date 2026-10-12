@@ -1,49 +1,61 @@
+import core.ParkingLot;
 import entities.*;
 import enums.VehicleSize;
-import strategy.fee.VehicleBasedStrategy;
+import exceptions.ParkingException;
+import strategy.fee.HourlyFeeStrategy;
+import strategy.parking.BestFitStrategy;
+import strategy.parking.NearestFirstStrategy;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        ParkingLot parkingLot = ParkingLot.getInstance();
+        Map<VehicleSize, Integer> floor1Counts = new HashMap<>();
+        floor1Counts.put(VehicleSize.SMALL, 2);
+        floor1Counts.put(VehicleSize.MEDIUM, 2);
+        floor1Counts.put(VehicleSize.LARGE, 1);
 
-        ParkingFloor floor1 = new ParkingFloor(1);
-        floor1.addSpot(new ParkingSpot("1.1", VehicleSize.SMALL));
-        floor1.addSpot(new ParkingSpot("1.2", VehicleSize.MEDIUM));
-        floor1.addSpot(new ParkingSpot("1.3", VehicleSize.LARGE));
+        Map<VehicleSize, Integer> floor2Counts = new HashMap<>();
+        floor2Counts.put(VehicleSize.SMALL, 1);
+        floor2Counts.put(VehicleSize.MEDIUM, 1);
+        floor2Counts.put(VehicleSize.LARGE, 1);
 
-        ParkingFloor floor2 = new ParkingFloor(2);
-        floor2.addSpot(new ParkingSpot("2.1", VehicleSize.SMALL));
-        floor2.addSpot(new ParkingSpot("2.2", VehicleSize.MEDIUM));
+        List<ParkingFloor> floors = List.of(
+                new ParkingFloor(1, floor1Counts),
+                new ParkingFloor(2, floor2Counts)
+        );
 
-        parkingLot.addFloor(floor1);
-        parkingLot.addFloor(floor2);
+        ParkingLot lot = ParkingLot.getInstance();
+        lot.initialize(floors, new HourlyFeeStrategy(10.0), new NearestFirstStrategy());
 
-        parkingLot.setFeeStrategy(new VehicleBasedStrategy());
+        lot.displayAvailability();
 
-        floor1.displayAvailability();
-        floor2.displayAvailability();
+        System.out.println("========== SCENARIO 1: Park Vehicles (Nearest First) ==========");
+        ParkingTicket bikeTicket = lot.parkVehicle(new Vehicle("KA-01-1111", VehicleSize.SMALL));
+        ParkingTicket carTicket = lot.parkVehicle(new Vehicle("KA-02-2222", VehicleSize.MEDIUM));
+        lot.parkVehicle(new Vehicle("KA-03-3333", VehicleSize.LARGE));
 
-        Vehicle bike = new Bike("B1");
-        Vehicle car = new Car("C1");
-        Vehicle truck = new Truck("T1");
+        lot.displayAvailability();
 
-        ParkingTicket bikeTicket = parkingLot.parkVehicle(bike);
-        ParkingTicket carTicket = parkingLot.parkVehicle(car);
-        ParkingTicket truckTicket = parkingLot.parkVehicle(truck);
+        System.out.println("========== SCENARIO 2: Park With Best Fit ==========");
+        lot.setAllocationStrategy(new BestFitStrategy());
+        lot.parkVehicle(new Vehicle("KA-04-4444", VehicleSize.MEDIUM));
 
-        floor1.displayAvailability();
-        floor2.displayAvailability();
+        System.out.println("\n========== SCENARIO 3: Unpark Vehicles ==========");
+        lot.unparkVehicle(bikeTicket.getTicketId());
+        lot.unparkVehicle(carTicket.getTicketId());
 
-        Vehicle car2 = new Car("C2");
-        ParkingTicket carTicket2 = parkingLot.parkVehicle(car2);
+        lot.displayAvailability();
 
-        Vehicle bike2 = new Bike("B1");
-        ParkingTicket bikeTicket2 = parkingLot.parkVehicle(bike2);
-
-        floor1.displayAvailability();
-        floor2.displayAvailability();
-
-        double feeOpt = parkingLot.unparkVehicle(car.getLicenseNumber());
-        System.out.println(feeOpt);
+        System.out.println("========== SCENARIO 4: No Spot Available ==========");
+        try {
+            lot.setAllocationStrategy(new NearestFirstStrategy());
+            lot.parkVehicle(new Vehicle("KA-05-5555", VehicleSize.LARGE));
+            lot.parkVehicle(new Vehicle("KA-06-6666", VehicleSize.LARGE));
+        } catch (ParkingException e) {
+            System.out.println("Caught expected error: " + e.getMessage());
+        }
     }
 }

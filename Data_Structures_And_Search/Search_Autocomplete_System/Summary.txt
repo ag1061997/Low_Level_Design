@@ -1,0 +1,58 @@
+################ Functional Requirements #################
+=> Support adding the words and get suggestions for the prefix.
+=> Rank the suggestions based on strategy.
+=> Max count of suggestions should be configurable.
+=> Frequency count is increased whenever any word is added.
+=> Words and prefix are case sensitive.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concepts.
+=> Design is extensible for future features.
+=> Design is easily testable.
+=> Design is optimized for fast lookup of prefix.
+
+
+################ Code Implementation ##############
+
+=> Entities: 1. Suggestion:
+                a. Attributes: (word, weight) All are private final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (getWord(), getWeight()) All are public.
+
+             2. TrieNode:
+                a. Attributes: (Map<Character, TrieNode> children, isEndOfWord, frequency) All are private and children is final.
+                b. Public  constructor to set the attributes.
+                c. Methods: (isEndOfWord(), setEndOfWord(endOfWord), getChildren(), getFrequency(), incrementFrequency()) All are public.
+
+=> Strategy: 1. RankingStrategy interface:
+                a. Method: (rank(List<Suggestion> suggestions)).
+                b. Classes AlphabeticalRanking, FrequencyBasedRanking implements the interface.
+                c. All classes implement the interface method.
+
+=> Core: 1. AutocompleteSystem:
+            a. Attributes: (Trie, RankingStrategy, maxSuggestions) All are private final.
+            b. Public constructor to set the attributes.
+            c. Methods: (addWord(word), addWords(List<String>), getSuggestions(prefix)) All are public.
+
+          2. Trie:
+            a. Attributes: (TrieNode) It is private final.
+            b. Public constructor to set the attributes.
+            c. Methods: (insert(word), searchPrefix(prefix), collectSuggestions(TrieNode startNode, prefix)) All are public.
+            d. Method: (collect(TrieNode startNode, prefix, List<Suggestion> suggestions)) It is private.
+
+          3. AutocompleteSystemBuilder:
+            a. Attributes: (RankingStrategy, maxSuggestions) All are private.
+            b. Methods: (withRankingStrategy(RankingStrategy), withMaxSuggestions(max), build()) All are public.
+
+
+=> Demo: 1. Create multiple instances of AutocompleteSystem using AutocompleteSystemBuilder with different combination of attributes.
+         2. Add list of words in the system.
+         3. Get suggestions for different values of prefix.
+
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of ranking the suggestions.
+2. Builder Design Pattern to create AutocompleteSystem instance and set variable attributes according to requirement.
+3. Facade Design Pattern to create AutocompleteSystem interface between client and internal system.

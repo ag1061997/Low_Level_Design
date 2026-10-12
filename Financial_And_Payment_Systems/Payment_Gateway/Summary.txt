@@ -1,0 +1,66 @@
+################ Functional Requirements #################
+=> Support multiple payment methods like Credit card, Paypal, UPI.
+=> System process the payment by appropriate payment processor.
+=> System retries the request if payment fails.
+=> System notify the relevant party upon payment status updates.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. PaymentMethod:
+            a. Attributes: (CREDIT_CARD, PAYPAL, UPI).
+
+          2. PaymentStatus:
+            a. Attributes: (INITIATED, SUCCESSFUL, FAILED).
+
+=> Entities: 1. PaymentRequest:
+                a. Attributes: (idempotencyKey, payerId, amount, currency, PaymentMethod, Map<String, String> paymentDetails) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getIdempotencyKey(), getPayerId(), getAmount(), getCurrency(), getPaymentMethod()) All are public.
+
+             2. Transaction:
+                a. Attributes: (id, PaymentRequest, PaymentStatus status, timestamp) All are private final except status.
+                b. Public constructor to set the attributes.
+                c. Methods: (setStatus(PaymentStatus), getId(), getStatus(), getRequest()) All are public.
+
+             3. PaymentResponse:
+                a. Attributes: (PaymentStatus, message) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getStatus(), getMessage()) All are public.
+
+=> Observer: 1. PaymentObserver interface:
+                a. Method: (onTransactionUpdate(Transaction transaction)) It is public.
+                b. Classes CustomerNotifier, MerchantNotifier implement the interface.
+                c. All classes implement the interface method.
+
+=> Factory: 1. PaymentProcessorFactory:
+              a. Method: (getProcessor(PaymentMethod)) It is public static.
+
+=> Strategy: 1. PaymentProcessor interface:
+                a. Method: (processPayment(PaymentRequest)).
+                b. Abstract Class AbstractPaymentProcessor implements the interface.
+                c. AbstractPaymentProcessor implement the interface method.
+                d. AbstractPaymentProcessor has private static final attribute MAX_RETRIES.
+                e. AbstractPaymentProcessor has protected abstract method doProcess(PaymentRequest).
+                f. Classes CreditCardProcessor, PayPalProcessor, UPIProcessor extends the class AbstractPaymentProcessor.
+                g. All 3 classes implement the abstract method of AbstractPaymentProcessor.
+
+=> Core: 1. PaymentGatewayService:
+            b. Attributes: (List<PaymentObserver> observers) It is private final.
+            e. Methods: (addObserver(PaymentObserver), removeObserver(PaymentObserver), notifyObservers(Transaction), processPayment(PaymentRequest)) All are public.
+            f. Methods: (updateStatus(Transaction, PaymentStatus)) It is private.
+
+=> Demo: 1. Create PaymentGateway instance and payment observers.
+         2. Create multiple payment request and process payment.
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of processing payments.
+2. Observer Design Pattern to notify the relevant party to when transaction status is updated.
+3. Factory Design Pattern to get instance of PaymentProcessor based on PaymentMethod.
+4. Template Design Pattern to create AbstractPaymentProcessor class which avoid code deduplication of retry logic.

@@ -1,0 +1,64 @@
+################ Functional Requirements #################
+=> System should support sending notifications via EMAIL, SMS and PUSH.
+=> Each notification target single recipient and specific channel.
+=> System should send notifications asynchronously.
+=> If sending fails, system should retry few times before giving up.
+=> Notification may have subject (optional) and body (mandatory).
+
+
+################ Non-Functional Requirements ##############
+=> System follow OOPS concepts.
+=> It should be extensible, allowing future support for new notification types (e.g Whatsapp, Slack).
+=> Delivery should be non-blocking, using a thread pool to manage parallel sending.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. NotificationType
+            a. Attributes (EMAIL, SMS, PUSH)
+
+=> Entities: 1. Recipient
+                a. Attributes: (Mandatory: userId), (Optional: email, phoneNumber, pushToken) All are private final.
+                b. Public constructor to set all attributes.
+                c. Methods:  (getUserId(), getEmail(), getPhoneNumber(), getPushToken()) All are public.
+
+             2. Notification
+                a. Attributes: (id, Recipient, NotificationType, message, subject) All are private final and mandatory.
+                b. Private constructor which set all attributes using Builder class.
+                c. Methods: (getId(), getRecipient(), getNotificationType(), getMessage(), getSubject()) All are public.
+                d. public static inner Builder class: 1. Attributes: (private final: Recipient, NotificationType), (private: message, subject).
+                                                      2. Public constructor to set Recipient, NotificationType.
+                                                      3. Methods: (message(), subject(), build()) All are public.
+
+=> Strategy: 1. NotificationGateway Interface:
+                a. Methods: (public void send(Notification) throw Exception).
+                b. Implementation Classes: (EmailGateway, SmsGateway, PushGateway) All implement this send method.
+
+=> Factory: 1. NotificationFactory:
+                a. Attributes: (gatewayMap) private static final hashmap to map gateway type from notification type.
+                b. Methods: (createGateway(NotificationType)) public static method to check gateway in map otherwise create and send gateway.
+
+=> Decorator: 1. RetryableGateway:
+                a. It implements Notification Gateway.
+                b. Attributes: (wrappedGateway, maxRetries, RetryDelay) All are private final
+                c. Public constructor to set all three attributes.
+                d. Methods: (send(Notification)) Public method to retry notification using the given gateway till maxRetries or successful with delay.
+
+=> Core Class: 1. NotificationService
+                a. Attributes: (ExecutorService) private final to create fixedThreadPool.
+                b. Public construction to set the attribute.
+                c. Methods: (sendNotification(Notification)) public to submit notification request of retryableGateway in executor.
+                d. Methods: (shutdown()) to close executor.
+
+=> Demo: 1. Create NotificationService Object.
+         2. Create Recipients Objects, Notification Objects.
+         3. Now send these using Notifications using notificationService object.
+         4. Shutdown NotificationService.
+
+
+################ Design Patterns ##############
+=> Builder Pattern to build Notification and handle the setting of optional attributes (Ex subject).
+=> Strategy Pattern to create different implementations of same NotificationGateway.
+=> Factory Pattern to create and send different notificationGateways according to notificationType.
+=> Decorator Pattern to wrapped the notificationGateway from NotificationFactory and add retry mechanism.
+=> Facade Pattern to provide single interface (NotificationService) between client and internal complex functionalities.

@@ -1,0 +1,72 @@
+################ Functional Requirements #################
+=> Support different log levels: DEBUG, INFO, WARN, ERROR, FATAL.
+=> Filter log messages based on minimum log level.
+=> Support multiple log appender like console, file etc.
+=> Allow single log message sent to multiple appender simultaneously.
+=> Allow async logging to prevent main thread blocking.
+=> Allow client to configure logger by log level, formatter, appender.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Logging must be safe in concurrent environment to prevent lost messages.
+=> Design should be modular and extensible to support new formatters and appender with minimal change.
+=> Codebase should be simple for developer to use.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. LogLevel:
+            a. Attributes: (DEBUG(1), INFO(2), WARN(3), ERROR(4), FATAL(5)).
+            b. Attribute: (level) It is private final.
+            c. Public constructor to set the attribute.
+            d. Method: (isGreaterOrEqual(LogLevel)) It is public.
+
+=> Entities: 1. LogMessage:
+                a. Attributes: (timestamp, level, logName, threadName, message) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getTimestamp(), getLevel(), getLogName(), getThreadName(), getMessage()) All are public.
+
+=> Strategies: 1. LogFormatter interface:
+                a. Methods: (format(LogMessage)).
+                b. Classes SimpleTextFormatter, JsonFormatter implements the interface.
+                c. SimpleTextFormatter has DATE_TIME_FORMATTER attribute.
+                d. Classes implement the interface method.
+
+               2. LogAppender interface:
+                a. Methods: (append(LogMessage), close(), getFormatter(), setFormatter(LogFormatter)).
+                b. Class ConsoleAppender and FileAppender implements the interface.
+                c. Both classes have LogFormatter attribute and FileAppender class also have FileWriter attribute.
+                d. Both classes have public constructor to set their attributes.
+                e. Both classes implement the interface methods.
+
+=> Core: 1. Logger:
+            a. Attributes: (name, LogLevel, List<LogAppender> appenders) All are private final except LogLevel.
+            b. Public constructor to set attributes.
+            c. Methods: (addAppender(LogAppender), getAppenders(), setLevel(LogLevel)) All are public.
+            d. Methods: (debug(message), info(message), warn(message), error(message), fatal(message), log(LogLevel, message), callAppenders(LogMessage)) All are public except callAppenders.
+
+         2. AsyncLogProcessor:
+            a. Attribute: (ExecuterService executors) It is private final.
+            b. Public constructor to set the attribute.
+            c. Methods: (process(LogMessage, List<LogAppender> appenders), stop()) Both are public.
+
+         3. LogManager:
+            a. Attribute: (INSTANCE) It is private static volatile.
+            b. Attributes: (Map<String, Logger> loggers, AsyncLogProcessor) All are private final.
+            c. Private constructor to set the attributes and avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            e. Methods: (getLogger(name), getProcessor(), shutDown()) All are public.
+
+
+=> Demo: 1. Create LogManager instance.
+         2. Create multiple Loggers with different names.
+         3. Set level and add appenders to each logger.
+         4. Send multiple log request with different logLevel and message from each logger.
+         5. Shutdown the LogManager.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of LogFormatter and LogAppender.
+2. Singleton Design Pattern to create only single instance of LogManager.
+3. Producer-Consumer Design Pattern where Application thread of Logger create LogMessage and act as producer and AsyncLogProcessor thread process the message and act as consumer, which decouple the logging overhead.

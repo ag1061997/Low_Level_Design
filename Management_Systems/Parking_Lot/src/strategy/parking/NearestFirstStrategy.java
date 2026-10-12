@@ -2,20 +2,19 @@ package strategy.parking;
 
 import entities.ParkingFloor;
 import entities.ParkingSpot;
-import entities.Vehicle;
+import enums.VehicleSize;
 
 import java.util.List;
-import java.util.Optional;
 
-public class NearestFirstStrategy implements ParkingStrategy {
+public class NearestFirstStrategy implements SpotAllocationStrategy {
     @Override
-    public Optional<ParkingSpot> findSpot(List<ParkingFloor> floors, Vehicle vehicle) {
-        for(ParkingFloor floor:floors) {
-            Optional<ParkingSpot> spot = floor.findAvailableSpot(vehicle);
-            if(spot.isPresent()) {
+    public ParkingSpot findSpot(List<ParkingFloor> floors, VehicleSize size) {
+        for (ParkingFloor floor : floors) {
+            ParkingSpot spot = floor.findAvailableSpot(size);
+            if (spot != null) {
                 return spot;
             }
         }
-        return Optional.empty();
+        return null;
     }
 }

@@ -2,28 +2,25 @@ package strategy.parking;
 
 import entities.ParkingFloor;
 import entities.ParkingSpot;
-import entities.Vehicle;
+import enums.VehicleSize;
 
 import java.util.List;
-import java.util.Optional;
 
-public class BestFitStrategy implements ParkingStrategy {
+public class BestFitStrategy implements SpotAllocationStrategy {
     @Override
-    public Optional<ParkingSpot> findSpot(List<ParkingFloor> floors, Vehicle vehicle) {
-        Optional<ParkingSpot> bestSpot = Optional.empty();
-
-        for(ParkingFloor floor:floors) {
-            Optional<ParkingSpot> spot = floor.findAvailableSpot(vehicle);
-            if (spot.isPresent()) {
-                if(bestSpot.isEmpty()) {
-                    bestSpot = spot;
-                } else {
-                    if(spot.get().getSpotSize().ordinal() < bestSpot.get().getSpotSize().ordinal()) {
-                        bestSpot = spot;
+    public ParkingSpot findSpot(List<ParkingFloor> floors, VehicleSize size) {
+        for (VehicleSize spotSize : VehicleSize.values()) {
+            if (spotSize.ordinal() < size.ordinal()) {
+                continue;
+            }
+            for (ParkingFloor floor : floors) {
+                for (ParkingSpot spot : floor.getSpots()) {
+                    if (spot.isAvailable() && spot.getSize() == spotSize) {
+                        return spot;
                     }
                 }
             }
         }
-        return bestSpot;
+        return null;
     }
 }

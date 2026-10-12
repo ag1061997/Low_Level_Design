@@ -1,0 +1,61 @@
+################ Functional Requirements #################
+=> Game is played on 3 * 3 board.
+=> Two players take alternate turns, identified by marker 'X' and 'O'.
+=> Game should detect and announce winner.
+=> Game should announce draw if all cells are filled and no player has won.
+=> game should reject invalid moves and inform the player.
+=> Move are hardcoded in demo class to simulate gameplay.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> System provide clear console output that reflect current state of the game board.
+=> Design should be modular and extensible for future enhancements.
+=> Codebase should be testable and easy to maintain.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. GameStatus:
+            a. Attributes: (IN_PROGRESS, WINNER_X, WINNER_O, DRAW).
+
+          1. Symbol:
+            a. Attributes: (X('X'), O('O'), EMPTY('_')).
+            b. Attribute: (displayChar) it is private final.
+            c. Constructor to set displayChar.
+            d. Method: (getDisplayChar()) it is public.
+
+=> Exception: 1. InvalidMoveException:
+                a. It extends RuntimeException.
+                b. Public constructor to call parent constructor.
+
+=> Entities:  1. Cell:
+                a. Attribute: (Symbol symbol) private.
+                b. Public constructor to set default value of symbol.
+                c. Methods: (getSymbol(), setSymbol(Symbol), isEmpty()) All are public.
+
+              2. Board:
+                a. Attributes: (Cell[][] grid, size) Both are private final.
+                b. Public constructor to set attributes and call private initializeBoard() method which create all the cells in grid.
+                c. Method: (validatePosition(row,column)) private function to check valid index in grid.
+                d. Methods: (placeSymbol(row, column, Symbol), isCellEmpty(row,column), getCell(row,column)) public methods which call validatePosition method first.
+                e. Methods: (getSize(), isFull(), printBoard()) All are public methods.
+
+              3. Player:
+                a. Attributes: (name, Symbol symbol) Both are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getName(), getSymbol()) Both are public.
+
+              4. Game:
+                a. Attributes: (Board board, Player[] players, currentPlayerIndex, GameStatus status) All are private and board, players are final.
+                b. Public constructor to set all the attributes.
+                c. Methods: (getBoard(), getCurrentPlayer(), getStatus(), printBoard()) All are public.
+                d. Method: (getWinner()) public method to return player if status is WINNER_O, WINNER_X.
+                e. Method: (makeMove(row,column)) public synchronized method which check game status, check if cell is empty, placeSymbol,
+                                                then check if we have win or draw or board is full otherwise switch to next player.
+                f. Method: (checkWin(row, column, Symbol)) private method to check all columns or rows or diagonals have the same symbol or not.
+
+=> Demo: 1. Create multiple Players instance.
+         2. Create Game instance.
+         3. Make multiple moves on the game and print the board.
+         4. Get the Winning player and print its name.

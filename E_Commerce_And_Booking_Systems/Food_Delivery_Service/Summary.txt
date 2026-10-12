@@ -1,0 +1,112 @@
+/=################ Functional Requirements #################
+=> Support registration of customer, delivery agent and restaurant.
+=> Support adding restaurants and menu items.
+=> Allow customer to search restaurant based on city, menu and location.
+=> Allow customer to place order of multiple items from selected restaurant.
+=> Allow customer to cancel the order when status is pending or confirmed.
+=> Notify restaurant on new orders and allow them to update status.
+=> Auto assign delivery agent.
+=> Notify relevant parties on order status update.
+=> Maintain order history for customer.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support new features.
+=> Components should be testable.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. OrderStatus:
+            a. Attributes: (PENDING, CONFIRMED, PREPARING, READY_FOR_PICKUP, OUT_FOR_DELIVERY, DELIVERED, CANCELLED).
+
+=> Entities: 1. User abstract class:
+                a. Attributes: (id, name, phone) All are private and id is final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getPhone()) All are public.
+                d. It implements the OrderObserver interface.
+
+             2. Customer:
+                a. It extends the user class.
+                b. Attributes: (Address, List<Order> orderHistory) All are private final except Address.
+                c. Public constructor to call parent class constructor and set all the attributes.
+                d. Methods: (addOrderToHistory(Order), getAddress()) All are public.
+                e. It implements the OrderObserver interface method.
+
+             3. DeliveryAgent:
+                a. It extends the user class.
+                b. Attributes: (isAvailable, Address currentLocation) All are private final except currentLocation.
+                c. Public constructor to call parent class constructor and set all the attributes.
+                d. Methods: (setAvailable(boolean available), isAvailable(), setCurrentLocation(Address), getCurrentLocation()) All are public.
+                e. It implements the OrderObserver interface method.
+
+             4. Address:
+                a. Attributes: (street, city, zipCode, latitude, longitude) All are private.
+                b. Public constructor to set the attributes.
+                c. Methods: (getCity(), distanceTo(Address)) All are public.
+
+             5. MenuItem:
+                a. Attributes: (id, name, price, available) All are private final except available.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getPrice(), setAvailable(boolean available), isAvailable()) All are public.
+
+             6. Menu:
+                a. Attributes: (Map<String, MenuItem> items) It is private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getItem(id), getItems()) All are public.
+
+             7. OrderItem:
+                a. Attributes: (MenuItem, quantity) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getItem(), getQuantity(), getSubtotal()) All are public.
+
+             8. Order:
+                a. Attributes: (id, Customer, Restaurant, List<OrderItem>, OrderStatus, DeliveryAgent, List<OrderObserver> observers) All are private final except OrderStatus and DeliveryAgent.
+                b. Public constructor to set the attributes.
+                c. Methods: (addObserver(OrderObserver), notifyObservers(), setStatus(OrderStatus), cancel(), assignDeliveryAgent(DeliveryAgent)) All are public.
+                d. Methods: (getId(), getCustomer(), getRestaurant(), getDeliveryAgent(), getStatus(), getTotalAmount()) All are public.
+
+             9. Restaurant:
+                a. Attributes: (id, name, Address, Menu) All are private final.
+                b. Public constructor to set the attributes.
+                c. Methods: (getId(), getName(), getAddress(), getMenu(), addToMenu(MenuItem)) All are public.
+                d. It implements the OrderObserver interface.
+                e. It implements the OrderObserver interface method.
+
+=> Observer: 1. OrderObserver interface:
+                a. Method: (OnUpdate(Order)) It is public.
+
+=> Strategy: 1. DeliveryAssignmentStrategy interface:
+                a. Method: (findAgent(Order, List<DeliveryAgent> agents)).
+                b. Class NearestAvailableAgentStrategy implements the interface.
+                c. Class implement the interface methods.
+                d. Class has private method calculateTotalDistance(DeliveryAgent, restaurantAddress, customerAddress).
+
+             2. RestaurantSearchStrategy interface:
+                a. Method: (filter(List<Restaurant> allRestaurants)).
+                b. Classes SearchByCityStrategy, SearchByMenuKeywordStrategy, SearchByProximityStrategy implements the interface.
+                c. All Classes implement the interface method.
+                d. Class SearchByCityStrategy has private final attribute city and public constructor to set the attribute.
+                e. Class SearchByMenuKeywordStrategy has private final attribute keyword and public constructor to set the attribute.
+                f. Class SearchByProximityStrategy has private final attributes Address userLocation, maxDistance and public constructor to set the attributes.
+
+=> Core: 1. FoodDeliveryService:
+            a. Attribute: (instance) It is private static volatile.
+            b. Attributes: (Map<String, Customer> customers, Map<String, Restaurant> restaurants, Map<String, DeliveryAgent> deliveryAgents, Map<String, Order> orders, DeliveryAssignmentStrategy, Map<OrderStatus, Set<OrderStatus>> VALID_TRANSITIONS) All are private final except DeliveryAssignmentStrategy and VALID_TRANSITIONS is static.
+            c. Private constructor to set attributes and avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            e. Methods: (setAssignmentStrategy(DeliveryAssignmentStrategy), registerCustomer(name, phone, address), registerRestaurant(name, address), registerDeliveryAgent(name, phone, initialLocation)) All are public.
+            f. Methods: (placeOrder(customerId, restaurantId, List<OrderItem>), updateOrderStatus(orderId, OrderStatus), cancelOrder(orderId), assignDelivery(Order), searchRestaurants(List<RestaurantSearchStrategy>), getRestaurantMenu(restaurantId)) All are public except assignDelivery.
+
+=> Demo: 1. Create FoodDeliveryService instance and set DeliveryAssignmentStrategy.
+         2. Create multiple Addresses, Restaurants, Customers, Menus, DeliveryAgents.
+         3. Customer search restaurant by different strategies.
+         4. Customer place the order.
+         5. Order status gets updated.
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of delivery agent assignment and filter the restaurants.
+2. Singleton Design Pattern to create only single instance of FoodDeliveryService.
+3. Facade Design Pattern to create FoodDeliveryService interface between client and internal system.
+4. Observer Design Pattern to notify relevant party on update of order status.

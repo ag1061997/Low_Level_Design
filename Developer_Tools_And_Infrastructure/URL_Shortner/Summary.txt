@@ -1,0 +1,68 @@
+################ Functional Requirements #################
+=> Automatically generate unique short URL for any long URL.
+=> Allow users to specify custom alias for the short URL.
+=> Allow users to define expiration time for the short URLs.
+=> Redirect user to long URL for short URLs.
+=> Handle URL conflict when custom alias is taken.
+=> Track and store the number of times short URL is visited.
+
+
+################ Non-Functional Requirements ##############
+=> Design follow OOPS concept.
+=> Design should be modular and extensible to support future changes.
+=> Each short URL must be unique.
+
+
+################ Code Implementation ##############
+
+=> Enums: 1. EventType:
+            a. Attributes: (URL_CREATED, URL_ACCESSED).
+
+=> Entities: 1. ShortenedURL:
+                a. Attributes: (longURL, shortKey, creationDate) All are private final.
+                b. Private constructor to set the attributes using the Builder.
+                c. Methods: (getLongURL(), getShortKey(), getCreationDate()) All are public.
+                d. Public static Builder class which has same attributes.
+                e. Class has public constructor to set mandatory attributes.
+                f. Method: (setCreationTime(), build()) Both are public.
+
+=> Strategy: 1. KeyGenerationStrategy interface:
+                a. Method: (generateKey(id)).
+                b. Classes Base62Strategy, RandomStrategy, UUIDStrategy implements the interface.
+                c. Each class has their own constant attributes.
+                d. All classes implement the interface method.
+
+=> Observer: 1. Observer interface:
+                a. Method: (update(EventType, ShortenedURL)).
+                b. Class AnalyticsService implements the interface.
+                c. Class implement the class method.
+                d. Class has private final attribute Map<String, AtomicLong> clickCounts.
+
+=> Repository: 1. URLRepository interface:
+                a. Methods: (save(shortenedURL), findByKey(key), findKeyByLongURL(longURL), getNextId(), existsByKey(key)).
+                b. Class InMemoryURLRepository implements the interface.
+                c. Class has private final attributes Map<String, ShortenedURL> keyToURLMap, Map<String, String> longUrlToKeyMap, AtomicLong idCounter.
+                d. Class implements all interface methods.
+
+=> Core: 3. URLShortenerService:
+            a. Attribute: (INSTANCE) It is private static volatile.
+            b. Attributes: (KeyGenerationStrategy, List<Observer> observers, URLRepository, domain, MAX_RETRIES) All are private but observers is final and MAX_RETRIES is private static final.
+            c. Private constructor to avoid multiple object creation.
+            d. Method: (getInstance()) It is public static.
+            e. Methods: (configure(domain, KeyGenerationStrategy, URLRepository), shorten(longURL), resolve(shortKey), generateUniqueKey(), addObserver(Observer), removeObserver(Observer), notifyObservers(EventType, ShortenedURL)) All are public except generateUniqueKey.
+
+
+=> Demo: 1. Create URLShortenerService instance.
+         2. Configure instance.
+         3. Add observer in instance.
+         4. Shorten multiple url using instance.
+         5. Resolve multiple short url using instance.
+
+
+################ Design Patterns ##############
+1. Strategy Design Pattern to implement different ways of key generation.
+2. Singleton Design Pattern to create only single instance of URLShortenerService.
+3. Facade Design Pattern to create URLShortenerService interface between client and internal system.
+4. Observer Design Pattern to notify AnalyticsService on each creation and click of shortURL.
+5. Builder Design Pattern to create immutable ShortenedURL objects.
+6. Repository Design Pattern to separate out data access logic from business logic.
